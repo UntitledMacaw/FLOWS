@@ -105,7 +105,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 👤 Author
 
-**Thiago Ricardo Borges** aka UntitledMacaw
+**Thiago Borges** aka UntitledMacaw
 
 ---
 
