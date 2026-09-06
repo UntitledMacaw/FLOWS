@@ -22,7 +22,7 @@ The core idea: instead of solving fluid dynamics equations over the entire terra
 - Storage capacity
 - Elevation–volume relationship
 - Overflow point
-- Connections to neighboring basins
+- Geographical positioning
 
 Once this network is compiled, rainfall forecasts can be converted into water volumes and propagated through the basin graph — shifting most of the computational cost from runtime to a one-time preprocessing stage.
 
