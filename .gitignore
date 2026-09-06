@@ -16,3 +16,23 @@ __pycache__/
 # Arquivos de sistema
 .DS_Store
 Thumbs.db
+
+#arquivo VRT
+output.vrt
+
+#arquivos do TEX
+document.aux
+document.fdb_latexmk
+document.fls
+document.log
+document.synctex.gz
+document.tex 
+document.toc
+
+#arquivo tif teste
+mdt.tif
+
+test_basins_dynamic/
+
+*.tif
+*.tiff
