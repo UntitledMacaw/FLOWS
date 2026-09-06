@@ -2,7 +2,7 @@
 
 **Flood Likelihood from pre-compiled Topological Analysis**
 
-> A lightweight, fast flood-risk estimation approach designed to run on modest hardware — using a topology-based basins instead of full hydrodynamic simulation.
+> A lightweight, fast flood-risk estimation approach designed to run on modest hardware — using a topology-based basins pre-compilation instead of full hydrodynamic simulation.
 
 [![Status](https://img.shields.io/badge/status-in%20development-yellow)]()
 [![Python](https://img.shields.io/badge/python-3.14-blue)]()
