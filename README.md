@@ -1,6 +1,6 @@
 # FLOWS
 
-**Flood Likelihood from pre-compiled tOpological analySis**
+**Flood Likelihood from pre-compiled Topological Analysis**
 
 > A lightweight, fast flood-risk estimation approach designed to run on modest hardware — using a topology-based basins instead of full hydrodynamic simulation.
 
