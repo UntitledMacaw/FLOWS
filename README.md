@@ -12,7 +12,7 @@
 
 ## 📖 About the project
 
-Traditional hydraulic models (HEC-RAS, LISFLOOD-FP, WRF-Hydro, national forecasting systems) achieve high accuracy and are well-established, valuable tools. For most use cases — 1D or 2D modeling over small/medium domains — they run fine on ordinary hardware. What demands heavier resources (substantial RAM and CPU, sometimes cluster infrastructure) are specific scenarios: high-resolution 2D simulations over large domains, or large-scale probabilistic studies (e.g. Monte Carlo). Even though that heavier tier is scenario-specific, it's still a real barrier for many schools, local governments, independent researchers, and developers.
+Traditional hydraulic models (HEC-RAS, WRF-Hydro, national forecasting systems, etc) achieve high accuracy and are well-established, valuable tools. For most use cases — 1D or 2D modeling over small/medium domains — they run fine on ordinary hardware. What demands heavier resources (substantial RAM and CPU, sometimes cluster infrastructure) are specific scenarios: high-resolution 2D simulations over large domains, or large-scale probabilistic studies (e.g. Monte Carlo). Even though that heavier tier is scenario-specific, it's still a real barrier for many schools, local governments, independent researchers, and developers.
 
 **FLOWS** starts from a simple question: *can a useful flood-risk estimate be produced, trading off some physical complexity, in order to run on consumer-grade hardware?*
 
