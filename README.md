@@ -24,7 +24,7 @@ The core idea: instead of solving fluid dynamics equations over the entire terra
 - Overflow point
 - Geographical positioning
 
-Once this network is compiled, rainfall forecasts can be converted into water volumes and propagated through the basin graph — shifting most of the computational cost from runtime to a one-time preprocessing stage.
+Once this network is compiled, rainfall forecasts can be converted into water volumes and handled by our pre-compiled values — shifting most of the computational cost from runtime to a one-time preprocessing stage.
 
 ## 🎯 Goal
 
@@ -35,9 +35,9 @@ To investigate whether a graph-based representation of terrain storage can provi
 1. Obtain a Digital Elevation Model (DEM) with acceptable resolution
 2. Identify topographic depressions ("basins")
 3. Calculate the storage–volume relationship for each basin
-4. Build a connectivity graph between basins
-5. Incorporate rainfall forecasts and infiltration estimates
-6. Estimate water accumulation and flood risk via graph traversal, rather than full hydrodynamic simulation
+4. Incorporate rainfall forecasts and infiltration estimates
+5. Estimate water accumulation and flood risk via the already calculated basin properties.
+6. Test on real-life scenarios.
 
 ### Tech stack
 
