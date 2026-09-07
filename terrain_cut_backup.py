@@ -113,7 +113,7 @@ def plot_tile_diagnostics(
             ax.plot(
                 x_coord,
                 y_coord,
-                marker='*',  
+                marker='',  
                 color='black',
                 markersize=5,  
                 markeredgecolor='white',
@@ -126,7 +126,7 @@ def plot_tile_diagnostics(
             ax.plot(
                 x_coord,
                 y_coord,
-                marker='o',
+                marker='',
                 color='dimgray',
                 markersize=2,
                 alpha=0.4,
@@ -271,11 +271,39 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id):
 
                 wbt.depth_in_sink(dem=filename_dem_clean, output=filename_depth, zero_background=True)
 
+                # Removing excess basins
+                print(f"    -> Applying mask to keep only basins of interest ...")
+
+                # a) Transforms the valid IDs set into a numpy array
+                core_ids_array = np.array(list(owned_by_core_ids))
+
+                # b) Creates a boolean mask (True if the pixel belongs to a basin of interest)
+                mask = np.isin(basins_data, core_ids_array)
+
+                # c) Checks which noData value is used by DEM and applies mask over basin_data
+                with rasterio.open(path_basins, 'r+') as dst:
+                    lines, columns = basins_data.shape
+                    area_m_square = (lines * 30) * (columns * 30)
+                    print(f"    -> Total area processed: {area_m_square / 1000000:.2f} km2")
+                    nodata_val = dst.nodata if dst.nodata is not None else 0
+
+                    filtered_basins = np.where(mask, basins_data, nodata_val)
+                    dst.write(filtered_basins, 1)
+
+                # d) Open, filers and overwrites depth TIF
+                path_depth = os.path.join(out_dir, filename_depth)
+                with rasterio.open(path_depth, 'r+') as dst:
+                    depth_data = dst.read(1)
+                    nodata_val_depth = dst.nodata if dst.nodata is not None else 0
+
+                    filtered_depth = np.where(mask, depth_data, nodata_val_depth)
+                    dst.write(filtered_depth, 1)
+
                 # testing quick visuals
                 print(f"    -> Generating image ...")
                 buf_bounds = (buf_minx, buf_miny, buf_maxx, buf_maxy)
                 plot_tile_diagnostics(
-                    basins_data,
+                    filtered_basins,
                     transform,
                     core_bounds_5800,
                     buf_bounds,

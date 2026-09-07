@@ -2,6 +2,8 @@
 .venv/
 venv/
 
+active_venv.txt
+
 # Arquivos de ambiente
 .env
 .env.*
