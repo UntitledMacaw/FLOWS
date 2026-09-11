@@ -12,21 +12,21 @@
 
 ## About the project
 
-Flood-risk estimation can require the integration of several different data, including terrain,
-soil properties, land cover, precipitation, etc. This can become particularly challenging for strong and short-duration rainfall events, as seen frequently in the south and southeast regions of Brazil - where conditions may change quickly and useful estimates may need to be produced within
+Flood-risk estimation can require the integration of several different types of data, including terrain,
+soil properties, land cover, precipitation, etc. This can become particularly challenging for intense, short-duration rainfall events - where conditions may change quickly and useful estimates may need to be produced within
 a limited time window.
 
-FLOWS starts from a simple question: can the computationally expensive analysis of terrain topology and storage capabilities be precomputed beforehand, so that flood-risk estimation can be generated
-quickly as soon as new rainfall data becomes available, while trading some small physical accuracy?
+FLOWS starts from a simple question: can the computationally expensive analysis of terrain topology and storage capacity be precomputed beforehand, so that flood-risk estimation can be generated
+quickly as soon as new rainfall data becomes available, while accepting some loss in physical fidelity?
 
 Rather than attempting to deal with the full complexity of a hydrodynamic model, FLOWS precomputes
-the terrain structure and its potencial storage relationships, then combines this information with
-rainfall-derived runoff estimates. Under an intentionally conservative scenario of an already saturated soil, the model can use AMC III soil conditions to estimate water accumulation and depth distribution. This preprocessing works by finding bowl-like depressions and their contributing areas, where water doesn't get stuck but rather flows down and gets stuck, and storing from them:
+the terrain structure and its potential storage relationships, then combines this information with
+rainfall-derived runoff estimates. Under an intentionally conservative scenario of high antecedent moisture, the model uses AMC III soil conditions to estimate water accumulation and depth distribution. This preprocessing works by finding bowl-like depressions and their contributing areas, where runoff tends to accumulate, and computes:
 
 - Area
 - Elevation – volume relationship
 - Geographical positioning
-- Compositive Curve Number
+- Composite Curve Number
 
 Once this data is compiled, rainfall forecasts can be converted into water volumes and handled by our pre-calculated values — shifting most of the computational cost from runtime to a one-time preprocessing stage.
 
@@ -37,7 +37,7 @@ To investigate whether a precompiled representation of terrain storage can provi
 ## Technical approach
 
 1. Obtain a Digital Elevation Model (DEM) with acceptable resolution
-2. Identify topographic depressions ("basins")
+2. Identify bowl-like topographic depressions ("basins")
 3. Calculate the storage–volume relationship for each basin
 4. Incorporate rainfall forecasts and infiltration estimates
 5. Estimate water accumulation and flood risk via the already calculated basin properties.
