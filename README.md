@@ -12,23 +12,27 @@
 
 ## About the project
 
-Traditional hydraulic models (HEC-RAS, WRF-Hydro, national forecasting systems, etc) achieve high accuracy and are well-established, valuable tools. For most use cases — 1D or 2D modeling over small/medium domains — they run fine on ordinary hardware. What demands heavier resources (substantial RAM and CPU, sometimes cluster infrastructure) are specific scenarios: high-resolution 2D simulations over large domains, or large-scale probabilistic studies. Even though that heavier tier is scenario-specific, it's still a real barrier for many schools, local governments, independent researchers, and developers.
+Flood-risk estimation can require the integration of several different data, including terrain,
+soil properties, land cover, precipitation, etc. This can become particularly challenging for strong and short-duration rainfall events, as seen frequently in the south and southeast regions of Brazil - where conditions may change quickly and useful estimates may need to be produced within
+a limited time window.
 
-**FLOWS** starts from a simple question: *can a useful flood-risk estimate be produced, trading off some physical complexity, in order to run on consumer-grade hardware?*
+FLOWS starts from a simple question: can the computationally expensive analysis of terrain topology and storage capabilities be precomputed beforehand, so that flood-risk estimation can be generated
+quickly as soon as new rainfall data becomes available, while trading some small physical accuracy?
 
-The core idea: instead of solving fluid dynamics equations over the entire terrain in real time, the terrain is **pre-processed once** into a network of natural storage basins (topographic depressions). Each basin is described by:
+Rather than attempting to deal with the full complexity of a hydrodynamic model, FLOWS precomputes
+the terrain structure and its potencial storage relationships, then combines this information with
+rainfall-derived runoff estimates. Under an intentionally conservative scenario of an already saturated soil, the model can use AMC III soil conditions to estimate water accumulation and depth distribution. This preprocessing works by finding bowl-like depressions and their contributing areas, where water doesn't get stuck but rather flows down and gets stuck, and storing from them:
 
 - Area
-- Storage capacity
-- Elevation–volume relationship
-- Overflow point
+- Elevation – volume relationship
 - Geographical positioning
+- Compositive Curve Number
 
-Once this network is compiled, rainfall forecasts can be converted into water volumes and handled by our pre-compiled values — shifting most of the computational cost from runtime to a one-time preprocessing stage.
+Once this data is compiled, rainfall forecasts can be converted into water volumes and handled by our pre-calculated values — shifting most of the computational cost from runtime to a one-time preprocessing stage.
 
 ## Goal
 
-To investigate whether a graph-based representation of terrain storage can provide useful flood-risk estimates while remaining lightweight enough to run on everyday laptops — making flood-awareness tools more accessible to small municipalities, schools, researchers, and citizen initiatives.
+To investigate whether a precompiled representation of terrain storage can provide useful flood-risk estimates while remaining lightweight and quick enough to run on everyday laptops — making flood-awareness tools more accessible to small municipalities, schools, researchers, and citizen initiatives.
 
 ## Technical approach
 
@@ -39,7 +43,7 @@ To investigate whether a graph-based representation of terrain storage can provi
 5. Estimate water accumulation and flood risk via the already calculated basin properties.
 6. Test on real-life scenarios.
 
-### Tech stack
+### Main libraries and tools
 
 | Tool | Purpose |
 |---|---|
@@ -53,24 +57,24 @@ To investigate whether a graph-based representation of terrain storage can provi
 
 ### Elevation data
 
-The project uses **ANADEM**, a DEM produced by Brazil's National Water and Basic Sanitation Agency (ANA) in collaboration with UFRGS — a refined version of Copernicus GLO-30 with reduced vegetation bias, developed specifically for hydrological analysis in South America.
+The project uses ANADEM, a DEM produced by Brazil's National Water and Basic Sanitation Agency (ANA) in collaboration with UFRGS — a refined version of Copernicus GLO-30 with reduced vegetation bias, developed specifically for hydrological analysis in South America.
 
 > ⚠️ The data sources and parameters used here were chosen for **Brazilian territory**. To adapt this project to another region, use an equivalent DEM and parameters for your area of study. But relax: documentation will be provided.
 
 ## How it works (pipeline overview)
 
-Since the full South American DEM exceeds 60 GB, processing is done in **dynamic windows** ("core boxes") to avoid loading everything into memory:
+Since the full South American DEM exceeds 60 GB in storage, processing is done in dynamic windows ("core boxes") to avoid loading everything into memory:
 
-1. Define a central analysis box (*core box*)
-2. Clip the terrain with an initial margin (*buffer*)
+1. Define a central analysis box (core box)
+2. Clip the terrain with an initial margin (buffer)
 3. Identify basins within that margin
 4. Check whether any basin "belonging" to the core box touches the buffer's edge (which would indicate an incorrect cut)
 5. If so, increase the buffer and repeat, up to a safety limit
 6. If not, save the result — free from tile boundary artifacts
 
-Whether a basin "belongs" to the core box or "leaked" to the edge is determined by comparing each basin's **centroid** against the original core box bounds — ensuring every basin is counted exactly once.
+Whether a basin "belongs" to the core box or "leaked" to the edge is determined by comparing each basin's centroid against the original core box bounds — ensuring every basin is counted exactly once.
 
-Next step in development: incorporating soil water infiltration via the **Curve Number (CN) method**, developed by the NRCS/USDA, to estimate precipitation excess as a function of cumulative rainfall, land cover, and antecedent soil moisture
+Next step in development: Handling the entire dataset.
 
 ## Current status
 
@@ -90,7 +94,7 @@ In progress / next steps:
 
 ## Reference hardware
 
-The project is developed and tested on **low-cost hardware**, to validate its accessibility goal:
+The project is developed and tested on low-cost hardware, to validate its accessibility goal:
 
 - Lenovo ThinkPad E470
 - Intel Core i5-7200U
@@ -109,4 +113,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-*This README documents a work-in-progress project, built for study and experimentation in low-cost computational hydrology.*
+*This README documents a work-in-progress project, built by an enthusiast for study and experimentation in low-cost computational hydrology.*
