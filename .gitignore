@@ -2,6 +2,9 @@
 .venv/
 venv/
 
+#output folder
+output_final_0_1/
+
 active_venv.txt
 
 # Arquivos de ambiente
