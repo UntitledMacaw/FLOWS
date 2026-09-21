@@ -92,7 +92,7 @@ Already implemented:
 Currently in  progress:
 
 - [ ] Final flood-risk estimation for the entire dataset (authors note: code is still running, slow compiling is mostly due to hardware constrains and the fact I can't really keep the computer plugged in and running all day)
-> Last update om compilation so far (Sep. 21 -> 700 of 2820 total core boxes already compiled)
+> Last update on compilation so far (Sep. 21 -> 700 of 2820 total core boxes already compiled)
 
 Next steps:
 
