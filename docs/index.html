@@ -673,20 +673,20 @@
 
         <div class="hero-meta-grid">
           <div class="meta-card">
-            <span class="meta-label">Core Runtime</span>
+            <span class="meta-label">Language</span>
             <span class="meta-value">Python 3.14</span>
           </div>
           <div class="meta-card">
-            <span class="meta-label">Pre-compiled Boxes</span>
+            <span class="meta-label">Last core boxes compiled update (Sep. 21)</span>
             <span class="meta-value">700 / 2820 (24.8%)</span>
           </div>
           <div class="meta-card">
-            <span class="meta-label">Primary Author</span>
+            <span class="meta-label">Author</span>
             <span class="meta-value">Thiago Borges</span>
           </div>
           <div class="meta-card">
             <span class="meta-label">License</span>
-            <span class="meta-value">MIT Open Source</span>
+            <span class="meta-value">MIT (Open Source)</span>
           </div>
         </div>
       </header>
@@ -719,10 +719,10 @@
         </p>
 
         <ul>
-          <li><strong>Area:</strong> Surface extent of the contributing catchment.</li>
-          <li><strong>Elevation – Volume Relationship:</strong> Pre-calculated depth-storage capacity curves.</li>
-          <li><strong>Geographical Positioning:</strong> Spatial orientation and centroid location.</li>
-          <li><strong>Composite Curve Number:</strong> Runoff potential under wet antecedent soil conditions.</li>
+          <li><strong>Area:</strong></li>
+          <li><strong>Elevation – Volume Relationship:</strong></li>
+          <li><strong>Geographical Positioning:</strong></li>
+          <li><strong>Composite Curve Number:</strong></li>
         </ul>
 
         <p>
@@ -741,10 +741,10 @@
         </p>
 
         <ul>
-          <li><strong>Small Municipalities:</strong> Local governments without budget for heavy GIS server clusters.</li>
-          <li><strong>Schools & Universities:</strong> Academic research and educational hydrological studies.</li>
-          <li><strong>Independent Researchers:</strong> Open science and environmental modeling.</li>
-          <li><strong>Citizen Initiatives:</strong> Community-led flood awareness and emergency preparation.</li>
+          <li><strong>Small Municipalities:</strong></li>
+          <li><strong>Schools & Universities:</strong></li>
+          <li><strong>Independent Researchers:</strong></li>
+          <li><strong>Citizen Initiatives:</strong></li>
         </ul>
       </section>
 
@@ -759,37 +759,37 @@
         <div class="pipeline-grid">
           <div class="pipeline-card">
             <span class="pipeline-step-num">Step 01</span>
-            <span class="pipeline-step-title">DEM Acquisition</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Obtain a Digital Elevation Model (DEM) with acceptable spatial resolution.</p>
+            <span class="pipeline-step-title">Find a good DEM</span>
+            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Obtain a Digital Elevation Model (DEM) with acceptable resolution.</p>
           </div>
 
           <div class="pipeline-card">
             <span class="pipeline-step-num">Step 02</span>
             <span class="pipeline-step-title">Basin Identification</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Identify bowl-like topographic depressions ("basins") across the terrain.</p>
+            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Find bowl-like topographic depressions ("basins") across the terrain.</p>
           </div>
 
           <div class="pipeline-card">
             <span class="pipeline-step-num">Step 03</span>
             <span class="pipeline-step-title">Storage Calculation</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Compute storage–volume depth curves for each identified basin.</p>
+            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Compute storage–volume relationships for each basin</p>
           </div>
 
           <div class="pipeline-card">
             <span class="pipeline-step-num">Step 04</span>
-            <span class="pipeline-step-title">Infiltration Modeling</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Incorporate rainfall forecasts and infiltration estimates via Curve Number.</p>
+            <span class="pipeline-step-title">Infiltration Handling</span>
+            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Incorporate rainfall forecasts and infiltration estimates</p>
           </div>
 
           <div class="pipeline-card">
             <span class="pipeline-step-num">Step 05</span>
-            <span class="pipeline-step-title">Flood Risk Mapping</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Estimate accumulation and flood risk using pre-calculated basin profiles.</p>
+            <span class="pipeline-step-title">Water accumulation Estimation (in progress)</span>
+            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Estimate water height and flood risk using pre-calculated data</p>
           </div>
 
           <div class="pipeline-card">
             <span class="pipeline-step-num">Step 06</span>
-            <span class="pipeline-step-title">Scenario Testing</span>
+            <span class="pipeline-step-title">Real World Testing (in progress)</span>
             <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Validate results against real-world historical rainfall and flooding events.</p>
           </div>
         </div>
@@ -811,7 +811,7 @@
           <tbody>
             <tr>
               <td class="tool-name">Python 3.14</td>
-              <td>Main project orchestration and computational logic</td>
+              <td>Main programming language</td>
             </tr>
             <tr>
               <td class="tool-name">GDAL / gdalbuildvrt</td>
@@ -845,7 +845,7 @@
             <span>[ CLI Tool Note ]</span>
           </div>
           <p class="callout-content">
-            The core file containing the FLOWS preprocessing command line tool is <code>terrain_cut_preprocessing.py</code>. Other scripts in the repository serve as backup reference implementations.
+            The core file containing the FLOWS preprocessing command line tool is <code>terrain_cut_preprocessing.py</code>. Other scripts in the repository are backups from different development stages.
           </p>
         </div>
       </section>
@@ -862,10 +862,10 @@
 
         <div class="callout callout-warning">
           <div class="callout-header">
-            <span>[ Territorial Adaptation Warning ]</span>
+            <span>[ Adaptation Warning ]</span>
           </div>
           <p class="callout-content">
-            The data sources and parameters used here were chosen specifically for <strong>Brazilian territory</strong>. To adapt this project to another region, use an equivalent DEM and soil parameters for your area of study. Complete documentation will be provided.
+            The data sources and parameters used here were chosen specifically for <strong>Brazilian territory</strong>. To adapt this project to another region, use an equivalent DEM and soil parameters for your area of study. More on that can be seen on provided documentation.
           </p>
         </div>
       </section>
@@ -904,15 +904,13 @@
 
         <div class="progress-widget">
           <div class="progress-top">
-            <span class="progress-title">Core Boxes Pre-compilation</span>
+            <span class="progress-title">Core Boxes already compiled</span>
             <span class="progress-value">700 / 2820 (24.8%)</span>
           </div>
           <div class="progress-bar-track">
             <div class="progress-bar-fill"></div>
           </div>
-          <p class="progress-subtext">
-            * Compile status update: 700 of 2820 core boxes processed. Slow execution speed is due to consumer-grade reference hardware constraints.
-          </p>
+          
         </div>
 
         <div class="checklist-container">
@@ -939,10 +937,6 @@
                 <span class="check-icon done">✓</span>
                 <span>Infiltration calculations via Curve Number method</span>
               </li>
-              <li class="checklist-row">
-                <span class="check-icon done">✓</span>
-                <span>Pre-calculate results pipeline</span>
-              </li>
             </ul>
           </div>
 
@@ -951,7 +945,7 @@
             <ul class="checklist-items">
               <li class="checklist-row">
                 <span class="check-icon pending">○</span>
-                <span>Final flood-risk estimation for the entire dataset (Compiling...)</span>
+                <span>Final flood-risk estimation for the entire dataset (still compiling...)</span>
               </li>
               <li class="checklist-row">
                 <span class="check-icon pending">○</span>
@@ -969,7 +963,7 @@
         </div>
 
         <p>
-          The project is intentionally benchmarked on low-cost, accessible hardware to validate its democratization goal:
+          The project is intentionally developed on low-cost hardware to validate its democratization goal:
         </p>
 
         <div class="spec-sheet">
@@ -1025,7 +1019,7 @@
 
       <footer>
         <span>FLOWS TECHNICAL SPECIFICATION</span>
-        <span>REVISION 2026.1</span>
+        <span>Beta 0.1</span>
       </footer>
 
     </main>
