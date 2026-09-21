@@ -55,6 +55,7 @@ To investigate whether a precompiled representation of terrain storage can provi
 | **NumPy / SciPy** | Masking, centroid calculation, and array operations |
 | **Matplotlib** | Visual diagnostics of the results |
 
+> The file that contains FLOWS command tool so far is terrain_cut_preprocessing.py. Other alternatives are backups left from development
 ### Elevation data
 
 The project uses ANADEM, a DEM produced by Brazil's National Water and Basic Sanitation Agency (ANA) in collaboration with UFRGS — a refined version of Copernicus GLO-30 with reduced vegetation bias, developed specifically for hydrological analysis in South America.
