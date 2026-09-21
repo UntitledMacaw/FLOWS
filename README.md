@@ -118,6 +118,12 @@ This project is licensed under the [MIT License](LICENSE).
 
 **Thiago Borges** aka UntitledMacaw
 
+## AI Usage
+Transparency is very important.
+AI was used in this project for learning how to use WhiteboxTools and how to handle raster files and debugging and analysing output.
+
+AI did not build the project from the ground up based on a simple "create a project that does something" prompt. Neither it did the job of comming up with the original idea of precompiling bowl-like depressions.
+
 ---
 
 *This README documents a work-in-progress project, built by an enthusiast for study and experimentation in low-cost computational hydrology.*
