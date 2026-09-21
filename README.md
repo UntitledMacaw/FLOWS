@@ -78,7 +78,9 @@ Next step in development: Handling the entire dataset.
 
 ## Current status
 
-Actively in development. Already implemented:
+This project is actively in development. 
+
+Already implemented:
 
 - [x] VRT generation from DEM tiles
 - [x] Bowl-like depression identification
@@ -87,9 +89,13 @@ Actively in development. Already implemented:
 - [x] Infiltration calculations via the Curve Number method
 - [x] Pre-calculate results
 
-In progress / next steps:
+Currently in  progress:
 
-- [ ] Final flood-risk estimation for the entire dataset
+- [ ] Final flood-risk estimation for the entire dataset (authors note: code is still running, slow compiling is mostly due to hardware constrains and the fact I can't really keep the computer plugged in and running all day)
+> Last update om compilation so far (Sep. 21 -> 700 of 2820 total core boxes already compiled)
+
+Next steps:
+
 - [ ] Testing with real-life events
 
 ## Reference hardware
