@@ -1,7 +1,8 @@
 # FLOWS
 (Flood Risk Likelihood from pre-compiled Watershed Analysis)
 
-** A python tool for generating and evaluating flood-risk data without relying on constant hydrodynamic simulation and high-end hardware **
+**A python tool for generating and evaluating flood-risk data without relying on constant hydrodynamic simulation and high-end hardware**
+
 [![Status](https://img.shields.io/badge/status-in%20development-yellow)]()
 [![Python](https://img.shields.io/badge/python-3.14-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
@@ -62,14 +63,14 @@ As of requirements, Python 3.14 is used and all libraries can be found in requir
 FLOWS development heavily depended on:
 - Brazil's National Water and Basic Sanitation Agency, that not only provided a DEM with reduced vegetation bias and a CN raster but also answered my emails and explained doubts!
 - Python: Main programming language
-- GDAL (`gdalbuildvrt`): Creating our virtual raster mosaic so we don't have to merge our dataset (that was provided in tiles. If your datas>
+- GDAL (`gdalbuildvrt`): Creating our virtual raster mosaic so we don't have to merge our dataset (that was provided in tiles. If your data is provided as a single big DEM, you probably can skip that step)
 - WhiteboxTools: Terrain analysis for finding basins (pit breaching, D8 pointer, sink, and other fancy geographical tools).
 - rasterio: Raster (.tif) reading/writing
 - geopandas / shapely: Geometry handling and cordinates reprojection
 - NumPy / SciPy: Masking (removing unwanted basins), centroid calculation and array stuff.
 - Matplotlib: Visual diagnostics
 
-and many other libaries that were of big importance to the project.
+and many other libaries that were very important to the project.
 
 ## AI usage
 AI was used for learnning how to use WhiteboxTools and debugging / verifying code and its output
