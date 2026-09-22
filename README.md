@@ -2,10 +2,10 @@
 (Flood Risk Likelihood from pre-compiled Watershed Analysis)
 ** A python tool for generating and evaluating flood-risk data without relying on constant hydrodynamic simulation and high-end hardware**
 [![Status](https://img.shields.io/badge/status-in%20development-yellow)]()
-[![Python](https://img.shileds.io/badge/python-3.14-blue)]()
+[![Python](https://img.shileds.io/badge/python-3.14-blue?logo=python&style=for-the-badge&logoColor=white)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
 
-![alt screenshot](https://github.com/UntitledMacaw/FLOWS/blob/images/running.png?raw=true)
+[![alt screenshot](https://github.com/UntitledMacaw/FLOWS/blob/images/running.png?raw=true)]()
 
 ## About
 Rather than dealing with complex hydrodynamic models, FLOWS analyses the terrain and finds bowl-like depressions - where water
@@ -16,7 +16,7 @@ and store those values so we can simply acess them later - thus saving up a lot 
 
 ## How it works
 
-![alt finding](https://github.com/UntitledMacaw/FLOWS/blobs/images/diagnostic.png)
+[![alt finding](https://github.com/UntitledMacaw/FLOWS/blobs/images/diagnostic.png)]()
 
 FLOWS finds basins (bowl-like depressions + contributing areas) and for each one finds or stores:
 
@@ -47,7 +47,7 @@ FLOWS will ask you to input:
 
 It will return:
 - A .csv table containing water height data from scenario from each basin from each core box
-![alt table](https://github.com/UntitledMacaw/FLOWS/blobs/images/data.png)
+[![alt table](https://github.com/UntitledMacaw/FLOWS/blobs/images/data.png)]()
 
 - A geopackage file (.gpkg) that serves as a map of where all of our basins are in the real world
 - A bunch of images from individual core boxes showing how basin finding turned out visually
