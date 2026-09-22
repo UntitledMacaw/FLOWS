@@ -9,10 +9,12 @@
 
 [![alt screenshot](images/running.png)]()
 
+Github web page: https://untitledmacaw.github.io/FLOWS/
+
 ## About
 Rather than dealing with complex hydrodynamic models, FLOWS analyses the terrain and finds bowl-like depressions - where water
 tends to accumulate in the terrain - and their contributing areas (where rainwater flows down until it gets trapped in a respective
-bowl-like depression) so it can analyses them. Why is that good: For a fixed ammount n of rainfall (in mm), the maximum height that water will reach in a respective  bowl-like depression + 
+bowl-like depression) so it can analyse them. Why is that good: For a fixed ammount n of rainfall (in mm), the maximum height that water will reach in a respective  bowl-like depression + 
 contribuiting area (let's call this union a "basin") will stay the same. This means that we can take basins and simulate beforehand various rainfall and antecedent soi moisture scenarios
 and store those values so we can simply acess them later - thus saving up a lot of computational power.
 
@@ -69,6 +71,7 @@ FLOWS development heavily depended on:
 - geopandas / shapely: Geometry handling and cordinates reprojection
 - NumPy / SciPy: Masking (removing unwanted basins), centroid calculation and array stuff.
 - Matplotlib: Visual diagnostics
+- Terminal CSS: Making a pretty github page!
 
 and many other libaries that were very important to the project.
 

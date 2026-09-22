@@ -1,1029 +1,325 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FLOWS — Technical Specification</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FLOWS - About</title>
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/terminal.css@0.7.5/dist/terminal.min.css"
+    >
+
+    
+    <style>
+        :root {
+            --background-color: #ffffff;
+            --font-color: #151515;
+            --invert-font-color: #ffffff;
+
+            --code-bg-color: #edf7f3;
+            --block-background-color: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #151515;
+            --font-color: #eeeeee;
+            --invert-font-color: #151515;
+
+            --progress-bar-background: #444444;
+            --progress-bar-fill: #63d8ad;
+
+            --code-bg-color: #222222;
+            --block-background-color: #151515;
+        }
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--secondary-color);
+            color: var(--font-color);
+            padding: 0.35em 0.7em;
+            font-family: inherit;
+            font-size: inherit;
+            cursor: pointer;
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-color);
+            color: var(--invert-font-color);
+        }
+
+        .results {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: calc(var(--global-space) * 4);
+        }
+
+        .results figure {
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .results img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+    </style>
 
-  <style>
-    :root {
-      /* Colors */
-      --bg-white: #FFFFFF;
-      --bg-subtle: #F8F9FA;
-      --bg-dark: #111111;
-      
-      --text-black: #000000;
-      --text-main: #111111;
-      --text-muted: #555555;
-      --text-light: #777777;
-      
-      --border-black: #000000;
-      --border-subtle: #E2E8F0;
-      --border-strong: #111111;
-      
-      /* Accents */
-      --accent-blue: #0052FF;
-      --accent-blue-bg: #EFF4FF;
-      --accent-green: #00A86B;
-      --accent-green-bg: #E8F8F2;
-      --accent-orange: #FF4500;
-      --accent-orange-bg: #FFF2EE;
-      
-      /* Fonts */
-      --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono: 'Fira Code', monospace;
-      
-      /* Layout */
-      --sidebar-width: 280px;
-      --topbar-height: 56px;
-    }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      background-color: var(--bg-white);
-      color: var(--text-main);
-      font-family: var(--font-heading);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .top-nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      height: var(--topbar-height);
-      background-color: var(--bg-white);
-      border-bottom: 2px solid var(--border-black);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      font-family: var(--font-mono);
-      font-size: 13px;
-    }
-
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .brand-title {
-      font-weight: 700;
-      font-size: 16px;
-      letter-spacing: -0.5px;
-      color: var(--text-black);
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      background: var(--bg-dark);
-      color: var(--bg-white);
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .status-pill .indicator {
-      width: 6px;
-      height: 6px;
-      background-color: var(--accent-green);
-      border-radius: 50%;
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .badge-tag {
-      padding: 4px 8px;
-      border: 1px solid var(--border-black);
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .doc-container {
-      display: grid;
-      grid-template-columns: var(--sidebar-width) 1fr;
-      min-height: calc(100vh - var(--topbar-height));
-    }
-
-    /* Sidebar Table of Contents */
-    .sidebar {
-      position: sticky;
-      top: var(--topbar-height);
-      height: calc(100vh - var(--topbar-height));
-      overflow-y: auto;
-      border-right: 2px solid var(--border-black);
-      background-color: var(--bg-white);
-      padding: 32px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .toc-header {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--border-black);
-      padding-bottom: 8px;
-    }
-
-    .toc-menu {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .toc-item a {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 10px;
-      text-decoration: none;
-      color: var(--text-main);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      border: 1px solid transparent;
-      transition: all 0.15s ease;
-    }
-
-    .toc-item a:hover {
-      background-color: var(--accent-blue-bg);
-      border-color: var(--accent-blue);
-      color: var(--accent-blue);
-    }
-
-    .toc-num {
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .toc-item a:hover .toc-num {
-      color: var(--accent-blue);
-    }
-
-    /* Main Content Area */
-    .main-content {
-      padding: 48px 64px 80px 64px;
-      max-width: 1040px;
-    }
-
-    .hero-spec {
-      border: 2px solid var(--border-black);
-      padding: 36px;
-      margin-bottom: 48px;
-      background-color: var(--bg-white);
-      box-shadow: 6px 6px 0px var(--border-black);
-    }
-
-    .hero-title {
-      font-size: 42px;
-      font-weight: 700;
-      letter-spacing: -1.5px;
-      line-height: 1.05;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-    }
-
-    .hero-subtitle {
-      font-family: var(--font-mono);
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--accent-blue);
-      margin-bottom: 20px;
-      display: block;
-    }
-
-    .hero-description {
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--text-main);
-      margin-bottom: 28px;
-    }
-
-    .hero-meta-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-black);
-      font-family: var(--font-mono);
-      font-size: 12px;
-    }
-
-    .meta-card {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .meta-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 700;
-    }
-
-    .meta-value {
-      font-weight: 700;
-      color: var(--text-black);
-    }
-
-    section {
-      margin-bottom: 56px;
-      scroll-margin-top: 80px;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      border-bottom: 2px solid var(--border-black);
-      padding-bottom: 10px;
-      margin-bottom: 24px;
-    }
-
-    .section-num {
-      font-family: var(--font-mono);
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--accent-blue);
-    }
-
-    .section-title {
-      font-size: 22px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: -0.5px;
-    }
-
-    p {
-      font-size: 15px;
-      line-height: 1.7;
-      color: var(--text-main);
-      margin-bottom: 18px;
-    }
-
-    ul, ol {
-      margin-bottom: 20px;
-      padding-left: 20px;
-      font-size: 15px;
-      line-height: 1.7;
-    }
-
-    li {
-      margin-bottom: 8px;
-    }
-
-    code {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      background-color: var(--bg-subtle);
-      border: 1px solid var(--border-black);
-      padding: 2px 6px;
-      font-weight: 600;
-    }
-
-    .callout {
-      border: 1px solid var(--border-black);
-      padding: 20px 24px;
-      margin: 24px 0;
-      position: relative;
-    }
-
-    .callout-info {
-      background-color: var(--accent-blue-bg);
-      border-left: 6px solid var(--accent-blue);
-    }
-
-    .callout-warning {
-      background-color: var(--accent-orange-bg);
-      border-left: 6px solid var(--accent-orange);
-    }
-
-    .callout-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .callout-info .callout-header {
-      color: var(--accent-blue);
-    }
-
-    .callout-warning .callout-header {
-      color: var(--accent-orange);
-    }
-
-    .callout-content {
-      font-size: 14px;
-      line-height: 1.6;
-      margin-bottom: 0;
-    }
-
-    .progress-widget {
-      border: 2px solid var(--border-black);
-      padding: 24px;
-      background-color: var(--bg-white);
-      box-shadow: 4px 4px 0px var(--border-black);
-      margin: 24px 0 32px 0;
-    }
-
-    .progress-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 12px;
-      font-family: var(--font-mono);
-    }
-
-    .progress-title {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .progress-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--accent-blue);
-    }
-
-    .progress-bar-track {
-      height: 20px;
-      border: 2px solid var(--border-black);
-      background-color: var(--bg-subtle);
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      width: 24.8%;
-      background-color: var(--accent-blue);
-      transition: width 0.3s ease;
-    }
-
-    .progress-subtext {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 0;
-    }
-
-    .pipeline-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-      margin: 24px 0;
-    }
-
-    .pipeline-card {
-      border: 2px solid var(--border-black);
-      padding: 20px;
-      background-color: var(--bg-white);
-      transition: all 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .pipeline-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 4px 4px 0px var(--border-black);
-    }
-
-    .pipeline-step-num {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--accent-blue);
-      text-transform: uppercase;
-    }
-
-    .pipeline-step-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-black);
-    }
-
-    .tech-table {
-      width: 100%;
-      border-collapse: collapse;
-      border: 2px solid var(--border-black);
-      margin: 24px 0;
-      font-size: 14px;
-    }
-
-    .tech-table th {
-      background-color: var(--bg-dark);
-      color: var(--bg-white);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 12px 16px;
-      text-align: left;
-      border: 1px solid var(--border-black);
-    }
-
-    .tech-table td {
-      padding: 12px 16px;
-      border: 1px solid var(--border-black);
-      vertical-align: middle;
-    }
-
-    .tech-table tr:nth-child(even) {
-      background-color: var(--bg-subtle);
-    }
-
-    .tool-name {
-      font-family: var(--font-mono);
-      font-weight: 700;
-      color: var(--text-black);
-      white-space: nowrap;
-    }
-
-    .checklist-container {
-      border: 2px solid var(--border-black);
-      background-color: var(--bg-white);
-      margin: 24px 0;
-    }
-
-    .checklist-group {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border-black);
-    }
-
-    .checklist-group:last-child {
-      border-bottom: none;
-    }
-
-    .checklist-group-title {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .checklist-items {
-      list-style: none;
-      padding-left: 0;
-      margin-bottom: 0;
-    }
-
-    .checklist-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      padding: 6px 0;
-    }
-
-    .check-icon {
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--border-black);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 11px;
-      flex-shrink: 0;
-    }
-
-    .check-icon.done {
-      background-color: var(--accent-green);
-      color: var(--bg-white);
-      border-color: var(--accent-green);
-    }
-
-    .check-icon.pending {
-      background-color: var(--bg-white);
-      color: var(--text-muted);
-    }
-
-    .spec-sheet {
-      border: 2px solid var(--border-black);
-      background-color: var(--bg-white);
-      box-shadow: 4px 4px 0px var(--border-black);
-      margin: 24px 0;
-    }
-
-    .spec-sheet-header {
-      background-color: var(--bg-dark);
-      color: var(--bg-white);
-      padding: 12px 20px;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .spec-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0;
-    }
-
-    .spec-item {
-      padding: 16px 20px;
-      border-right: 1px solid var(--border-black);
-      border-bottom: 1px solid var(--border-black);
-      font-family: var(--font-mono);
-    }
-
-    .spec-item-key {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .spec-item-val {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-black);
-    }
-
-    /* Footer */
-    footer {
-      margin-top: 60px;
-      padding-top: 24px;
-      border-top: 2px solid var(--border-black);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    @media (max-width: 860px) {
-      .doc-container {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: relative;
-        top: 0;
-        height: auto;
-        border-right: none;
-        border-bottom: 2px solid var(--border-black);
-        padding: 20px;
-      }
-
-      .main-content {
-        padding: 24px;
-      }
-
-      .hero-title {
-        font-size: 32px;
-      }
-    }
-  </style>
 </head>
 
-<body>
+<body class="terminal">
+    <header class="container">
+        <nav class="terminal-nav">
+            FLOWS
+            <div class="terminal-menu">
+            
+                <ul>
+                    <li>
+                        <a href="#about">About</a>
+                    </li>
 
-  <header class="top-nav">
-    <div class="brand-group">
-      <span class="brand-title">FLOWS // SPECIFICATION</span>
-      <span class="status-pill">
-        <span class="indicator"></span>
-        IN DEVELOPMENT
-      </span>
-    </div>
-    <div class="nav-actions">
-      <span class="badge-tag">PYTHON 3.14</span>
-      <span class="badge-tag">MIT LICENSE</span>
-    </div>
-  </header>
+                    <li>
+                        <a href="#how-it-works">How it works</a>
+                    </li>
 
-  <div class="doc-container">
+                    <li>
+                        <a href="#see-it-in-action">See it in action</a>
+                    </li>
 
-    <aside class="sidebar">
-      <div class="toc-header">Table of Contents</div>
-      <ul class="toc-menu">
-        <li class="toc-item"><a href="#overview"><span class="toc-num">01</span> Overview</a></li>
-        <li class="toc-item"><a href="#goal"><span class="toc-num">02</span> Goal</a></li>
-        <li class="toc-item"><a href="#approach"><span class="toc-num">03</span> Tech Approach</a></li>
-        <li class="toc-item"><a href="#stack"><span class="toc-num">04</span> Tech Stack</a></li>
-        <li class="toc-item"><a href="#elevation"><span class="toc-num">05</span> Elevation Data</a></li>
-        <li class="toc-item"><a href="#pipeline"><span class="toc-num">06</span> Pipeline Model</a></li>
-        <li class="toc-item"><a href="#status"><span class="toc-num">07</span> Current Status</a></li>
-        <li class="toc-item"><a href="#hardware"><span class="toc-num">08</span> Hardware Specs</a></li>
-        <li class="toc-item"><a href="#meta"><span class="toc-num">09</span> License & Author</a></li>
-      </ul>
-    </aside>
+                    <li>
+                        <a href="#progress">Progress so far</a>
+                    </li>
 
-    <main class="main-content">
+                    <li>
+                        <a href="https://github.com/UntitledMacaw/FLOWS">
+                            GitHub
+                        </a>
+                    </li>
 
-      <!-- Hero Header -->
-      <header class="hero-spec">
-        <h1 class="hero-title">FLOWS</h1>
-        <span class="hero-subtitle">Flood Likelihood from pre-compiled Watershed Analysis</span>
-        <p class="hero-description">
-          A lightweight flood-risk estimation approach designed to run on modest hardware — using topology-based basin pre-compilation instead of full hydrodynamic simulation.
-        </p>
-
-        <div class="hero-meta-grid">
-          <div class="meta-card">
-            <span class="meta-label">Language</span>
-            <span class="meta-value">Python 3.14</span>
-          </div>
-          <div class="meta-card">
-            <span class="meta-label">Last core boxes compiled update (Sep. 21)</span>
-            <span class="meta-value">700 / 2820 (24.8%)</span>
-          </div>
-          <div class="meta-card">
-            <span class="meta-label">Author</span>
-            <span class="meta-value">Thiago Borges</span>
-          </div>
-          <div class="meta-card">
-            <span class="meta-label">License</span>
-            <span class="meta-value">MIT (Open Source)</span>
-          </div>
-        </div>
-      </header>
-
-      <section id="overview">
-        <div class="section-header">
-          <span class="section-num">01</span>
-          <h2 class="section-title">About the Project</h2>
-        </div>
-
-        <p>
-          Flood-risk estimation can require the integration of several different types of data, including terrain, soil properties, land cover, precipitation, etc. This can become particularly challenging for intense, short-duration rainfall events — where conditions may change quickly and useful estimates may need to be produced within a limited time window.
-        </p>
-
-        <div class="callout callout-info">
-          <div class="callout-header">
-            <span>[ Core Technical Question ]</span>
-          </div>
-          <p class="callout-content">
-            Can the computationally expensive analysis of terrain topology and storage capacity be precomputed beforehand, so that flood-risk estimation can be generated quickly as soon as new rainfall data becomes available, while accepting some loss in physical fidelity?
-          </p>
-        </div>
-
-        <p>
-          Rather than attempting to deal with the full complexity of a hydrodynamic model, <strong>FLOWS</strong> precomputes the terrain structure and its potential storage relationships, then combines this information with rainfall-derived runoff estimates.
-        </p>
-
-        <p>
-          Under an intentionally conservative scenario of high antecedent moisture, the model uses <strong>AMC III soil conditions</strong> to estimate water accumulation and depth distribution. This preprocessing works by finding bowl-like depressions and their contributing areas, where runoff tends to accumulate, and computes:
-        </p>
-
-        <ul>
-          <li><strong>Area</strong></li>
-          <li><strong>Elevation – Volume Relationship</strong></li>
-          <li><strong>Geographical Positioning</strong></li>
-          <li><strong>Composite Curve Number</strong></li>
-        </ul>
-
-        <p>
-          Once this data is compiled, rainfall forecasts can be converted into water volumes and handled by our pre-calculated values — shifting most of the computational cost from runtime to a one-time preprocessing stage.
-        </p>
-      </section>
-
-      <section id="goal">
-        <div class="section-header">
-          <span class="section-num">02</span>
-          <h2 class="section-title">Goal & Mission</h2>
-        </div>
-
-        <p>
-          To investigate whether a precompiled representation of terrain storage can provide useful flood-risk estimates while remaining lightweight and quick enough to run on everyday laptops — making flood-awareness tools more accessible to:
-        </p>
-
-        <ul>
-          <li><strong>Small Municipalities</strong></li>
-          <li><strong>Schools & Universities</strong></li>
-          <li><strong>Independent Researchers</strong></li>
-          <li><strong>Citizen Initiatives</strong></li>
-        </ul>
-      </section>
-
-      <section id="approach">
-        <div class="section-header">
-          <span class="section-num">03</span>
-          <h2 class="section-title">Technical Approach</h2>
-        </div>
-
-        <p>The methodology breaks down terrain preprocessing into six distinct phases:</p>
-
-        <div class="pipeline-grid">
-          <div class="pipeline-card">
-            <span class="pipeline-step-num">Step 01</span>
-            <span class="pipeline-step-title">Find a good DEM</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Obtain a Digital Elevation Model (DEM) with acceptable resolution.</p>
-          </div>
-
-          <div class="pipeline-card">
-            <span class="pipeline-step-num">Step 02</span>
-            <span class="pipeline-step-title">Basin Identification</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Find bowl-like topographic depressions ("basins") across the terrain.</p>
-          </div>
-
-          <div class="pipeline-card">
-            <span class="pipeline-step-num">Step 03</span>
-            <span class="pipeline-step-title">Storage Calculation</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Compute storage–volume relationships for each basin</p>
-          </div>
-
-          <div class="pipeline-card">
-            <span class="pipeline-step-num">Step 04</span>
-            <span class="pipeline-step-title">Infiltration Handling</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Incorporate rainfall forecasts and infiltration estimates</p>
-          </div>
-
-          <div class="pipeline-card">
-            <span class="pipeline-step-num">Step 05</span>
-            <span class="pipeline-step-title">Water accumulation Estimation (in progress)</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Estimate water height and flood risk using pre-calculated data</p>
-          </div>
-
-          <div class="pipeline-card">
-            <span class="pipeline-step-num">Step 06</span>
-            <span class="pipeline-step-title">Real World Testing (in progress)</span>
-            <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Validate results against real-world historical rainfall and flooding events.</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="stack">
-        <div class="section-header">
-          <span class="section-num">04</span>
-          <h2 class="section-title">Main Libraries and Tools</h2>
-        </div>
-
-        <table class="tech-table">
-          <thead>
-            <tr>
-              <th>Tool / Module</th>
-              <th>Purpose in Architecture</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="tool-name">Python 3.14</td>
-              <td>Main programming language</td>
-            </tr>
-            <tr>
-              <td class="tool-name">GDAL / gdalbuildvrt</td>
-              <td>Virtual raster mosaic (VRT) of DEM tiles, without duplicating data on disk</td>
-            </tr>
-            <tr>
-              <td class="tool-name">WhiteboxTools</td>
-              <td>Hydrological processing (pit breaching, D8 pointer, sinks, watersheds)</td>
-            </tr>
-            <tr>
-              <td class="tool-name">rasterio</td>
-              <td>Efficient raster (.tif) reading and spatial grid writing</td>
-            </tr>
-            <tr>
-              <td class="tool-name">geopandas / shapely</td>
-              <td>Vector geometry handling and coordinate reprojection</td>
-            </tr>
-            <tr>
-              <td class="tool-name">NumPy / SciPy</td>
-              <td>Masking, centroid calculation, and multi-dimensional array operations</td>
-            </tr>
-            <tr>
-              <td class="tool-name">Matplotlib</td>
-              <td>Visual diagnostics of preprocessing results and basin plots</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="callout callout-info">
-          <div class="callout-header">
-            <span>[ CLI Tool Note ]</span>
-          </div>
-          <p class="callout-content">
-            The core file containing the FLOWS preprocessing command line tool is <code>terrain_cut_preprocessing.py</code>. Other scripts in the repository are backups from different development stages.
-          </p>
-        </div>
-      </section>
-
-      <section id="elevation">
-        <div class="section-header">
-          <span class="section-num">05</span>
-          <h2 class="section-title">Elevation Data</h2>
-        </div>
-
-        <p>
-          The project uses <strong>ANADEM</strong>, a DEM produced by Brazil's National Water and Basic Sanitation Agency (ANA) in collaboration with UFRGS — a refined version of Copernicus GLO-30 with reduced vegetation bias, developed specifically for hydrological analysis in South America.
-        </p>
-
-        <div class="callout callout-warning">
-          <div class="callout-header">
-            <span>[ Adaptation Warning ]</span>
-          </div>
-          <p class="callout-content">
-            The data sources and parameters used here were chosen specifically for <strong>Brazilian territory</strong>. To adapt this project to another region, use an equivalent DEM and soil parameters for your area of study. More on that can be seen on provided documentation.
-          </p>
-        </div>
-      </section>
-
-      <section id="pipeline">
-        <div class="section-header">
-          <span class="section-num">06</span>
-          <h2 class="section-title">Pipeline Overview (Core Boxes)</h2>
-        </div>
-
-        <p>
-          Since the full South American DEM exceeds <strong>60 GB</strong> in storage, processing is executed in dynamic spatial windows ("core boxes") to prevent memory overflow:
-        </p>
-
-        <ol>
-          <li>Define a central analysis box (core box).</li>
-          <li>Clip the terrain with an initial spatial margin (buffer).</li>
-          <li>Identify basins within that extended margin.</li>
-          <li>Check whether any basin "belonging" to the core box touches the buffer's edge (indicating an incomplete boundary cut).</li>
-          <li>If so, increase the buffer margin dynamically and repeat, up to a safety threshold.</li>
-          <li>If clean, save the result — completely free from tile boundary artifacts.</li>
-        </ol>
-
-        <p>
-          Whether a basin "belongs" to the core box or "leaked" to the edge is determined by comparing each basin's centroid against the original core box bounds — ensuring every basin is counted exactly once without duplication.
-        </p>
-      </section>
-
-      <section id="status">
-        <div class="section-header">
-          <span class="section-num">07</span>
-          <h2 class="section-title">Current Status & Progress</h2>
-        </div>
-
-        <p>FLOWS is actively under development. Below is the last update of dataset compilation (last updated September 21):</p>
-
-        <div class="progress-widget">
-          <div class="progress-top">
-            <span class="progress-title">Core Boxes already compiled</span>
-            <span class="progress-value">700 / 2820 (24.8%)</span>
-          </div>
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill"></div>
-          </div>
-          
-        </div>
-
-        <div class="checklist-container">
-          <div class="checklist-group">
-            <div class="checklist-group-title">Already Implemented</div>
-            <ul class="checklist-items">
-              <li class="checklist-row">
-                <span class="check-icon done">✓</span>
-                <span>VRT generation from DEM tiles</span>
-              </li>
-              <li class="checklist-row">
-                <span class="check-icon done">✓</span>
-                <span>Bowl-like depression identification</span>
-              </li>
-              <li class="checklist-row">
-                <span class="check-icon done">✓</span>
-                <span>Final spatial mask removing basins outside area of interest</span>
-              </li>
-              <li class="checklist-row">
-                <span class="check-icon done">✓</span>
-                <span>Visual diagnostics of process steps</span>
-              </li>
-              <li class="checklist-row">
-                <span class="check-icon done">✓</span>
-                <span>Infiltration calculations via Curve Number method</span>
-              </li>
-            </ul>
-          </div>
-
-          <div class="checklist-group">
-            <div class="checklist-group-title">In Progress & Next Steps</div>
-            <ul class="checklist-items">
-              <li class="checklist-row">
-                <span class="check-icon pending">○</span>
-                <span>Final flood-risk estimation for the entire dataset (still compiling...)</span>
-              </li>
-              <li class="checklist-row">
-                <span class="check-icon pending">○</span>
-                <span>Validation testing with real-life historical events</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section id="hardware">
-        <div class="section-header">
-          <span class="section-num">08</span>
-          <h2 class="section-title">Reference Hardware</h2>
-        </div>
-
-        <p>
-          The project is intentionally developed on low-cost hardware to validate its democratization goal:
-        </p>
-
-        <div class="spec-sheet">
-          <div class="spec-sheet-header">
-            <span>Hardware Specification Sheet</span>
-            <span>Current platform</span>
-          </div>
-          <div class="spec-grid">
-            <div class="spec-item">
-              <div class="spec-item-key">Device Model</div>
-              <div class="spec-item-val">Lenovo ThinkPad E470</div>
+                    <li>
+                        <button
+                            id="theme-toggle"
+                            class="theme-toggle"
+                            type="button"
+                            aria-label="Toggle dark mode"
+                        >
+                            [ DARK ]
+                        </button>
+                    </li>
+                </ul>
             </div>
-            <div class="spec-item">
-              <div class="spec-item-key">Processor</div>
-              <div class="spec-item-val">Intel Core i5-7200U</div>
+
+        </nav>
+    </header>
+
+
+    <!-- Main -->
+    <main class="container">
+
+        <br>
+        <br>
+        <section id="front">
+            <h1>Flood Risk Likelihood from pre-compiled Watershed Analysis</h1>
+
+            <br>
+
+            <p>
+                A python tool for generating and evaluating flood-risk data without relying on constant hydrodynamic simulation and high-end hardware
+            </p>
+
+            <div>
+                <figure class="hero-image">
+                    <img
+                        src="running.png"
+                        alt="FLOWS terrain and watershed analysis"
+                    >
+                </figure>
             </div>
-            <div class="spec-item">
-              <div class="spec-item-key">Memory</div>
-              <div class="spec-item-val">8 GB DDR4 RAM</div>
+
+        </section>
+
+        <br>
+        <br>
+
+        <section id="about">
+            <h2>About</h2>
+            <p>
+                Rather than dealing with complex hydrodynamic models, FLOWS analyses the terrain and finds bowl-like depressions - where water tends to accumulate in the terrain - and their contributing areas (where rainwater flows down until it gets trapped in a respective bowl-like depression) so it can analyses them. 
+            </p>
+            <br>
+            <div class="terminal-alert terminal-alert-primary">
+                Why is that good: For a fixed ammount n of rainfall (in mm), the maximum height that water will reach in a respective bowl-like depression + contribuiting area (let's call this union a "basin") will stay the same. This means that we can take basins and simulate beforehand various rainfall and antecedent soi moisture scenarios and store those values so we can simply acess them later - thus saving up a lot of computational power.
             </div>
-            <div class="spec-item">
-              <div class="spec-item-key">Storage</div>
-              <div class="spec-item-val">120 GB SATA SSD</div>
+            
+        </section>
+
+        <br>
+        <br>
+
+        <section id="how-it-works">
+            <h2 id="Timeline">How it works</h2>
+            <br>
+            <div class="terminal-timeline">
+                <div class="terminal-card">
+                    <header>Step 1</header>
+                    <div>It takes our entire dataset and partitions it in various parts that we will call core boxes</div>
+                </div>
+
+                <div class="terminal-card">
+                    <header>Step 2</header>
+                    <div>Runs WhiteboxTools to identify basins within the total search area. We want to keep the interesting ones that belong to the core box</div>
+                </div>
+
+                <div class="terminal-card">
+                    <header>Step 3</header>
+                    <div>Runs a colision test to see if any interesting basins touch the edge of the search area</div>
+                </div>
+
+                <div class="terminal-card">
+                    <header>Step 4</header>
+                    <div>If we have interesting basins touching the border, it will increase the search area and go back to step 2. If not, moves on to step 5 </div>
+                </div>
+
+                <div class="terminal-card">
+                    <header>Step 5</header>
+                    <div>For each interesting basins that we've found, we will store:
+                        <ul>
+                            <li>Area</li>
+                            <li>Water height for each rainfall and moisture scenarios</li>
+                            <li>Where that basin is in the map</li>
+                            <li>Rainfall infiltration data</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="spec-item">
-              <div class="spec-item-key">Operating System</div>
-              <div class="spec-item-val">Fedora Workstation 44</div>
+
+        </section>
+
+
+        <br>
+        <br>
+
+
+        <section id="see-it-in-action">
+            <h2>See it in action</h2>
+
+            <p>See the output of a single core box that was processed during testing</p>
+
+            <div>
+                <p>Command:</p>
+                <pre><code>
+                    (.venv) python3 terrain_cut_preprocessing.py
+                </code></pre>
             </div>
-          </div>
+            <div>
+                <p>Output:</p>
+                <pre><code>
+                    [test_01] Trying to process with a margin of 0.1
+                    [FAIL] 1 basin(s) leaked outside current buffer
+                    [test_01] Trying to process with a margin of 0.2
+                    [SUCESS] All interesting basins fit within a buffer of 0.2
+                        -> Total area processed: 38796.10 km2
+                        -> Mask applied!
+                        -> Image stored as: diagnostic_test_01.png 
+                        -> Core basin vector stored as: core_basins_test_01.gpkg
+                        -> Skipping basin 3: No valid CN data.
+                        -> Exported worst-case volume table: all_basins_test_01_wcs.csv
+                    Total elapsed time: 54m 59s 
+                </code></pre>
+
+                <br>
+                <br>
+
+                <section class="results">
+                    <figure>
+                        <img src="data.png" alt="Generated CSV table">
+                        <figcaption>generated csv table</figcaption>
+                    </figure>
+
+                    <figure>
+                        <img src="diagnostic.png" alt="Generated diagnostic image">
+                        <figcaption>generated diagnostic image</figcaption>
+                    </figure>
+                </section>
+
+
+            </div>
+        </section>
+
+        <section id="progress">
+            <h1>Current progress</h1>
+            <p>
+                Next steps are to:
+                <ul>
+                    <li>Compile the dataset to the entire Brazilian territory (in progress)</li>
+
+                    <li>Test on real life events (up next / being taken care of)</li>
+                </ul>
+            </p>
+
+            <br>
+
+            <p>
+                So far, this is dataset preprocessing current progress:
+            </p>
+
+            <div class="progress-bar progress-bar-show-percent">
+            <div class="progress-bar-filled" style="width: 25.8%" data-filled="730 / 2820 (25.8%)"></div>
+            <br>Last updated: September 22, 2026
         </div>
-      </section>
-
-      <section id="meta">
-        <div class="section-header">
-          <span class="section-num">09</span>
-          <h2 class="section-title">License & Authorship</h2>
-        </div>
-
-        <p>
-          This project is licensed under the terms of the <strong>MIT License</strong>.
-        </p>
-
-        <p>
-          <strong>Author:</strong> Thiago Borges (aka <em>UntitledMacaw</em>)
-        </p>
-
-        <div class="callout callout-info" style="margin-top: 24px;">
-          <p class="callout-content" style="font-style: italic;">
-            This document specifies a work-in-progress open science project, built by an enthusiast for study and experimentation in low-cost computational hydrology.
-          </p>
-        </div>
-      </section>
-
-      <footer>
-        <span>FLOWS TECHNICAL SPECIFICATION</span>
-        <span>Beta 0.1</span>
-      </footer>
+        </section>
 
     </main>
-  </div>
+
+    <br>
+    <br>
+
+    <!-- Footer -->
+    <footer class="container">
+        <hr>
+
+        <p>
+            FLOWS —
+            <a href="https://github.com/UntitledMacaw/FLOWS">
+                GitHub
+            </a>
+            · MIT License
+        </p>
+
+        <p>
+            This is an open project. More about it on github.
+        </p>
+
+        <p>
+            Made with Terminal CSS
+        </p>
+
+        <p>
+            &copy; Thiago Borges. All rights reserved
+        </p>
+    </footer>
+
+
+    <script>
+        const root = document.documentElement;
+        const toggle = document.getElementById("theme-toggle");
+
+        toggle.addEventListener("click", () => {
+            const isDark = root.dataset.theme === "dark";
+
+            root.dataset.theme = isDark ? "light" : "dark";
+
+            toggle.textContent = isDark
+                ? "[ DARK ]"
+                : "[ LIGHT ]";
+        });
+    </script>
 
 </body>
 </html>
+```
