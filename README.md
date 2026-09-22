@@ -1,129 +1,82 @@
 # FLOWS
-
-**FLOWS: Flood Likelihood from pre-compiled Watershed Analysis**
-
-> A lightweight flood-risk estimation approach designed to run on modest hardware — using a topology-based basins pre-compilation instead of full hydrodynamic simulation.
-
+(Flood Risk Likelihood from pre-compiled Watershed Analysis)
+** A python tool for generating and evaluating flood-risk data without relying on constant hydrodynamic simulation and high-end hardware**
 [![Status](https://img.shields.io/badge/status-in%20development-yellow)]()
-[![Python](https://img.shields.io/badge/python-3.14-blue)]()
+[![Python](https://img.shileds.io/badge/python-3.14-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
 
----
+![alt screenshot](https://github.com/UntitledMacaw/FLOWS/blob/images/running.png?raw=true)
 
-## About the project
+## About
+Rather than dealing with complex hydrodynamic models, FLOWS analyses the terrain and finds bowl-like depressions - where water
+tends to accumulate in the terrain - and their contributing areas (where rainwater flows down until it gets trapped in a respective
+bowl-like depression) so it can analyses them. Why is that good: For a fixed ammount n of rainfall (in mm), the maximum height that water will reach in a respective  bowl-like depression + 
+contribuiting area (let's call this union a "basin") will stay the same. This means that we can take basins and simulate beforehand various rainfall and antecedent soi moisture scenarios
+and store those values so we can simply acess them later - thus saving up a lot of computational power.
 
-Flood-risk estimation can require the integration of several different types of data, including terrain,
-soil properties, land cover, precipitation, etc. This can become particularly challenging for intense, short-duration rainfall events - where conditions may change quickly and useful estimates may need to be produced within
-a limited time window.
+## How it works
 
-FLOWS starts from a simple question: can the computationally expensive analysis of terrain topology and storage capacity be precomputed beforehand, so that flood-risk estimation can be generated
-quickly as soon as new rainfall data becomes available, while accepting some loss in physical fidelity?
+![alt finding](https://github.com/UntitledMacaw/FLOWS/blobs/images/diagnostic.png)
 
-Rather than attempting to deal with the full complexity of a hydrodynamic model, FLOWS precomputes
-the terrain structure and its potential storage relationships, then combines this information with
-rainfall-derived runoff estimates. Under an intentionally conservative scenario of high antecedent moisture, the model uses AMC III soil conditions to estimate water accumulation and depth distribution. This preprocessing works by finding bowl-like depressions and their contributing areas, where runoff tends to accumulate, and computes:
+FLOWS finds basins (bowl-like depressions + contributing areas) and for each one finds or stores:
 
 - Area
-- Elevation – volume relationship
-- Geographical positioning
-- Composite Curve Number
+- Water height for each rainfall and soil moisture scenarios
+- Geographical positioning (so we can actually now where basins are in the map)
+- Composite Curve Number (for rainfall infiltration)
 
-Once this data is compiled, rainfall forecasts can be converted into water volumes and handled by our pre-calculated values — shifting most of the computational cost from runtime to a one-time preprocessing stage.
+> IMPORTANT NOTE: The SCS Curve Number method can be faulty on some certain types of terrain, and therefore data needs ajustments before it can be safely used with it. Be aware when using this tool for your specific region. For the authors needs (Brazilian territory), ajustments and notes were used from: Sartori et al (2005).
 
-## Goal
+For actually finding basins without exceeding RAM usage limits, FLOWS cuts the entire dataset into multiple analysis boxes (core boxes), and for each one:
 
-To investigate whether a precompiled representation of terrain storage can provide useful flood-risk estimates while remaining lightweight and quick enough to run on everyday laptops — making flood-awareness tools more accessible to small municipalities, schools, researchers, and citizen initiatives.
+1. Inserts a initial small buffer of surounding terrain
+2. Runs WhiteboxTools to identify basins within the total boundaries (initial core box boundaries + buffer)
+3. Runs a colision test where it checks whether any basins that belong to the core box touches the edge (defined by the total boundaries)
+4. If a basin touches the edge, that indicates an incorrect cut, so we increase the buffer and go back to step 2
+5. If not, we save our results (making sure we will be free from boundary artifacts)
+6. We will keep increasing the edge until a safety limit (so the computer doesn't crash)
 
-## Technical approach
+> For checking whether a basin belongs in a respective core box, we compare its centroid (from the 2D top-down view) and check if it is contained within the initial core box boundaries (excluding buffer). Since the centroid is unique, we make sure that basins are counted once.
 
-1. Obtain a Digital Elevation Model (DEM) with acceptable resolution
-2. Identify bowl-like topographic depressions ("basins")
-3. Calculate the storage–volume relationship for each basin
-4. Incorporate rainfall forecasts and infiltration estimates
-5. Estimate water accumulation and flood risk via the already calculated basin properties.
-6. Test on real-life scenarios.
+## Usage and requirements
+The FLOWS command tool can be found on the `terrain_cut_preprocessing.py` file (other alternatives exists for backup purpuses).
+FLOWS will ask you to input:
+- Path for VRT (must be in EPSG:4326 coordinates system, so far no other systems are supported. Make sure to convert your dataset before proceeding)
+- Path for Curve Number raster (must also be in EPSG:4326 coordinates system) containing CN values for each pixel.
+- A folder for storing output
 
-### Main libraries and tools
+It will return:
+- A .csv table containing water height data from scenario from each basin from each core box
+![alt table](https://github.com/UntitledMacaw/FLOWS/blobs/images/data.png)
 
-| Tool | Purpose |
-|---|---|
-| **Python** | Main project language |
-| **GDAL / `gdalbuildvrt`** | Virtual raster mosaic (VRT) of DEM tiles, without duplicating data on disk |
-| **WhiteboxTools** | Hydrological processing (pit breaching, D8 pointer, sinks, watersheds) |
-| **rasterio** | Raster (.tif) reading/writing |
-| **geopandas / shapely** | Geometry handling and coordinate reprojection |
-| **NumPy / SciPy** | Masking, centroid calculation, and array operations |
-| **Matplotlib** | Visual diagnostics of the results |
+- A geopackage file (.gpkg) that serves as a map of where all of our basins are in the real world
+- A bunch of images from individual core boxes showing how basin finding turned out visually
 
-> The file that contains FLOWS command tool so far is terrain_cut_preprocessing.py. Other alternatives are backups left from development
-### Elevation data
+As of requirements, Python 3.14 is used and all libraries can be found in requirements.txt, and can be installed with pip by running:
+`pip install requirements.txt`
 
-The project uses ANADEM, a DEM produced by Brazil's National Water and Basic Sanitation Agency (ANA) in collaboration with UFRGS — a refined version of Copernicus GLO-30 with reduced vegetation bias, developed specifically for hydrological analysis in South America.
+## Acknowledgements
+FLOWS development heavily depended on:
+- Brazil's National Water and Basic Sanitation Agency, that not only provided a DEM with reduced vegetation bias and a CN raster but also answered my emails and explained doubts!
+- Python: Main programming language
+- GDAL (`gdalbuildvrt`): Creating our virtual raster mosaic so we don't have to merge our dataset (that was provided in tiles. If your datas>
+- WhiteboxTools: Terrain analysis for finding basins (pit breaching, D8 pointer, sink, and other fancy geographical tools).
+- rasterio: Raster (.tif) reading/writing
+- geopandas / shapely: Geometry handling and cordinates reprojection
+- NumPy / SciPy: Masking (removing unwanted basins), centroid calculation and array stuff.
+- Matplotlib: Visual diagnostics
 
-> ⚠️ The data sources and parameters used here were chosen for **Brazilian territory**. To adapt this project to another region, use an equivalent DEM and parameters for your area of study. But relax: documentation will be provided.
+and many other libaries that were of big importance to the project.
 
-## How it works (pipeline overview)
+## AI usage
+AI was used for learnning how to use WhiteboxTools and debugging / verifying code and its output
+AI did not develop the project from scratch based on a "please do something that does that" prompt, neither it developed the main idea of finding bowl-like depressions and finding them.
 
-Since the full South American DEM exceeds 60 GB in storage, processing is done in dynamic windows ("core boxes") to avoid loading everything into memory:
-
-1. Define a central analysis box (core box)
-2. Clip the terrain with an initial margin (buffer)
-3. Identify basins within that margin
-4. Check whether any basin "belonging" to the core box touches the buffer's edge (which would indicate an incorrect cut)
-5. If so, increase the buffer and repeat, up to a safety limit
-6. If not, save the result — free from tile boundary artifacts
-
-Whether a basin "belongs" to the core box or "leaked" to the edge is determined by comparing each basin's centroid against the original core box bounds — ensuring every basin is counted exactly once.
-
-Next step in development: Handling the entire dataset.
-
-## Current status
-
-This project is actively in development. 
-
-Already implemented:
-
-- [x] VRT generation from DEM tiles
-- [x] Bowl-like depression identification
-- [x] Final mask removing basins outside the area of interest
-- [x] Visual diagnostics of the process
-- [x] Infiltration calculations via the Curve Number method
-- [x] Pre-calculate results
-
-Currently in  progress:
-
-- [ ] Final flood-risk estimation for the entire dataset (authors note: code is still running, slow compiling is mostly due to hardware constrains and the fact I can't really keep the computer plugged in and running all day)
-> Last update on compilation so far (Sep. 21 -> 700 of 2820 total core boxes already compiled)
-
-Next steps:
-
-- [ ] Testing with real-life events
-
-## Reference hardware
-
-The project is developed and tested on low-cost hardware, to validate its accessibility goal:
-
-- Lenovo ThinkPad E470
-- Intel Core i5-7200U
-- 8 GB DDR4 RAM
-- 120 GB SATA SSD
-- Fedora Workstation 44
-
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
+## License
+This project is licensed user the [MIT License](LICENCE).
 
 ## Author
 
-**Thiago Borges** aka UntitledMacaw
+Thiago Borges aka UntitledMacaw
 
-## AI Usage
-Transparency is very important.
-AI was used in this project for learning how to use WhiteboxTools and how to handle raster files and debugging and analysing output.
-
-AI did not build the project from the ground up based on a simple "create a project that does something" prompt. Neither it did the job of comming up with the original idea of precompiling bowl-like depressions.
-
----
-
-*This README documents a work-in-progress project, built by an enthusiast for study and experimentation in low-cost computational hydrology.*
+*Note: this is a work-in-progress project, built by an enthusiast for study and experimentation in low-cost computational hydrology. Take that in consideration when applying it to your specific use case*
