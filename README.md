@@ -1,8 +1,9 @@
 # FLOWS
 (Flood Risk Likelihood from pre-compiled Watershed Analysis)
-** A python tool for generating and evaluating flood-risk data without relying on constant hydrodynamic simulation and high-end hardware**
+
+** A python tool for generating and evaluating flood-risk data without relying on constant hydrodynamic simulation and high-end hardware **
 [![Status](https://img.shields.io/badge/status-in%20development-yellow)]()
-[![Python](https://img.shields.io/badge/python-3.14-blue?logo=python&style=for-the-badge&logoColor=white)]()
+[![Python](https://img.shields.io/badge/python-3.14-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
 
 [![alt screenshot](images/running.png)]()
@@ -47,10 +48,12 @@ FLOWS will ask you to input:
 
 It will return:
 - A .csv table containing water height data from scenario from each basin from each core box
-[![alt table](images/data.png)]()
-
 - A geopackage file (.gpkg) that serves as a map of where all of our basins are in the real world
 - A bunch of images from individual core boxes showing how basin finding turned out visually
+
+Here is an image of the .csv table after a test:
+
+[![alt table](images/data.png)]()
 
 As of requirements, Python 3.14 is used and all libraries can be found in requirements.txt, and can be installed with pip by running:
 `pip install requirements.txt`
