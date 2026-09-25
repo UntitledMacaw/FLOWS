@@ -15,14 +15,14 @@ Github web page: https://untitledmacaw.github.io/FLOWS/
 Rather than dealing with complex hydrodynamic models, FLOWS analyses the terrain and finds bowl-like depressions - where water
 tends to accumulate in the terrain - and their contributing areas (where rainwater flows down until it gets trapped in a respective
 bowl-like depression) so it can analyse them. Why is that good: For a fixed ammount n of rainfall (in mm), the maximum height that water will reach in a respective  bowl-like depression + 
-contribuiting area (let's call this union a "basin") will stay the same. This means that we can take basins and simulate beforehand various rainfall and antecedent soi moisture scenarios
+contribuiting area (let's call this union a "basin") will stay the same. This means that we can take basins and simulate beforehand various rainfall and antecedent soil moisture scenarios
 and store those values so we can simply acess them later - thus saving up a lot of computational power.
 
 ## How it works
 
 [![alt finding](images/diagnostic.png)]()
 
-FLOWS finds basins (bowl-like depressions + contributing areas) and for each one finds or stores:
+FLOWS finds basins (bowl-like depressions + contributing areas) and for each one stores:
 
 - Area
 - Water height for each rainfall and soil moisture scenarios
@@ -59,7 +59,8 @@ Here is an image of the .csv table after a test:
 [![alt table](images/data.png)]()
 
 As of requirements, Python 3.14 is used and all libraries can be found in requirements.txt, and can be installed with pip by running:
-`pip install requirements.txt`
+`pip install -r requirements.txt`
+> NOTE: you must have GDAL installed before running pip install -r requirements.txt, or else you'll get an error. Follow your distro specific instructions for getting it.
 
 ## Acknowledgements
 FLOWS development heavily depended on:
@@ -74,6 +75,24 @@ FLOWS development heavily depended on:
 - Terminal CSS: Making a pretty github page!
 
 and many other libaries that were very important to the project.
+
+## Hardware for this project (call this minimal requirements if you want to)
+To prove FLOWS is able to be runned on low-end hardware, here are the specs in which the project has been built from the ground up:
+
+- Lenovo Thinkpad E470
+- Intel Core i5-7200U (4) @ 3.10 GHz
+- 8 GB of DDR4 RAM
+- 120GB SATA SSD
+> NOTE: 120gb of storage as acceptable here since the dataset used by me (the author) weighted around 62GB. If your DEM and stuff weights more than that, consider revising storage for your own needs.
+
+## Current compiling proccess (Brazil)
+The FLOWS tool present in `terrain_cut_preprocessing.py` has currently been running on my hardware and using ANADEM as dataset. ANADEM is a DEM provided by Brazil's National Water and Basic Sanitation Agency (ANA) in collaboration with the Federal University of Rio Grande do Sul (UFGRS). It is a refined version of Copernicus GLO-30, with reduced vegetation bias, made just for hydrological analysis like we're doing here.
+
+The FLOWS tool cut the dataset into 2820 core boxes, and so far it still hasn't finished all of them.
+
+Core boxes compiled so far: 840 / 2820 (last updated September 25, 2026)
+
+When runtime is over, that data will be made open and available to everyone that wants to use it (usage rules determined by the projects license -> MIT License)
 
 ## AI usage
 AI was used for learnning how to use WhiteboxTools and debugging / verifying code and its output
