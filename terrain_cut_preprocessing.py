@@ -17,6 +17,7 @@ from rich.console import Console
 import time
 from datetime import datetime
 from contextlib import contextmanager
+from pathlib import Path
 
 console = Console()
 
@@ -31,7 +32,7 @@ def log_noprint(*args, **kwargs):
 
     if LOG_FILE:
         try:
-            message = " ".joim(str(a) for a in args)
+            message = " ".join(str(a) for a in args)
             with open(LOG_FILE, "a", encoding="utf-8") as f:
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 f.write(f"[{timestamp}] {message}\n")
@@ -390,6 +391,70 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
     os.makedirs(out_dir, exist_ok=True)
     minx, miny, maxx, maxy = core_bounds_deg
 
+    path_csv_file = Path(out_dir) / f"flows_table_{tile_id}.csv"
+
+    # IMPORTANT -> checks if this code box was already compiled
+    path_depth_check = Path(out_dir) / f"depth_final_{tile_id}.tif"
+    path_basins_check = Path(out_dir) / f"basins_final_{tile_id}.tif"
+
+    if path_depth_check.is_file() and path_basins_check.is_file():
+        log_print(f"[NOTE] Raster data from {tile_id} already exists. Skipping basin finding")
+
+        # Checks if we already have a CSV generated
+        if path_csv_file.is_file():
+            log_print(f"[NOTE] {tile_id} seems to already be 100% processed. Moving on to the next one")
+            return None
+        # If not, calculate again
+
+        try:
+            path_cn_temp = os.path.join(out_dir, f"temp_{tile_id}_cn.tif")
+
+            with rasterio.open(path_basins_check) as src:
+                basins_data = src.read(1)
+
+                owned_ids = set(np.unique(basins_data))
+
+                owned_ids.discard(0)
+
+                if src.nodata is not None:
+                    owned_ids.discard(src.nodata)
+
+                b = src.bounds
+
+            if not os.path.exists(path_cn_temp):
+                gdal.Warp(
+                    destNameOrDestDS=path_cn_temp,
+                    srcDSOrSrcDSTab=path_cn_input,
+                    format='GTiff',
+                    outputBounds=(b.left, b.bottom, b.right, b.top),
+                    outputBoundsSRS='EPSG:5880',
+                    dstSRS='EPSG:5880',
+                    xRes=30, yRes=30,
+                    dstNodata=0,
+                    creationOptions=['COMPRESS=DEFLATE', 'TILED=YES']
+                )
+
+            df_tile = simulate_basin_volumes_worst_case(
+                path_basins=str(path_basins_check),
+                path_depth=str(path_depth_check),
+                path_cn=path_cn_temp,
+                owned_ids=owned_ids,
+                out_dir=out_dir,
+                tile_id=tile_id
+            )
+
+            if df_tile is not None and not df_tile.empty:
+                df_tile.to_csv(path_csv_file, index=False)
+                log_print(f"    -> Regenerated CSV table as: flows_table_{tile_id}.csv")
+
+            if os.path.exists(path_cn_temp):
+                os.remove(path_cn_temp)
+
+            return None
+
+        except Exception as e:
+            raise RuntimeError(f"Critical Failure on {tile_id}: {e}")
+
     df_tile = None
 
     # Projects Core Tile limist from 4326 (degress) to 5800 (meters)
@@ -601,6 +666,13 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
                         out_dir=out_dir,
                         tile_id=tile_id
                     )
+
+                    # Converting individual core data to CSV
+
+                    if df_tile is not None and not df_tile.empty:
+                        df_tile.to_csv(path_csv_file, index=False)
+                        log_print(f"    -> Regenerated CSV table as: flows_table_{tile_id}.csv")
+                    
                 sucess = True
 
         except Exception as e:
@@ -620,7 +692,7 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
     if not sucess and buffer_current >= buffer_limit:
         raise RuntimeError(f"Buffer limit reached on {tile_id}. Consider revising terrain.")
 
-    return df_tile
+    return None
 
 if __name__ == "__main__":
     log_print("Hello! Welcome to FLOWS command tool")
@@ -645,15 +717,13 @@ if __name__ == "__main__":
     with logged_status("Generating grid", spinner="dots"):
         all_core_boxes = generate_core_boxes(PATH_VRT, TILE_WIDTH, TILE_HEIGHT)
 
-    all_tile_dfs = []
-
     for box_info in all_core_boxes:
         tile_name = box_info["tile_id"]
         tile_bounds = box_info["bounds"]
 
         try:
             with logged_status(f"Processing {tile_name} | Bounds: {tile_bounds}"):
-                df_result = dynamic_cut(
+                dynamic_cut(
                     path_vrt=PATH_VRT,
                     out_dir=OUT_DIR,
                     core_bounds_deg=tile_bounds,
@@ -661,23 +731,33 @@ if __name__ == "__main__":
                     path_cn_input=PATH_CN_INPUT
                 )
 
-                if df_result is not None:
-                    all_tile_dfs.append(df_result)
-
         except Exception as e:
             log_print(f"[ERROR]: {e}")
             time.sleep(0.5)
             log_print(f"    -> Aborting all subsequent tiles")
             break
 
-    with logged_status("Saving CSV ", spinner="dots"):
-        if all_tile_dfs:
-            final_df = pd.concat(all_tile_dfs, ignore_index=True)
+    with logged_status("Uniting CSV files", spinner="dots"):
+        csv_files = [
+            os.path.join(OUT_DIR, f) for f in os.listdir(OUT_DIR) if f.startswith("flows_table_tile") and f.endswith(".csv")
+        ]
+
+        if csv_files:
+            df_list = [pd.read_csv(f) for f in csv_files]
+            final_df = pd.concat(df_list, ignore_index=True)
+
             final_csv_path = os.path.join(OUT_DIR, 'FLOWS_all_basins.csv')
             final_df.to_csv(final_csv_path, index=False)
-            log_print(f"    -> CSV file saved as FLOWS_all_basins.csv")
+
+            log_print(f"[SUCCESS] Final table stored on {final_csv_path}")
+            log_print(f"    -> Total of lines: {len(final_df)}")
+
+            # Limpando paradinhas aqui
+            for stuff in csv_files:
+                os.remove(stuff)
+
         else:
-            log_print(f"[WARNING] No basins were processed. No CSV generated")
+            log_print("[WARNING] No csv data found")
 
     with logged_status("Generating main GeoPackage and cleaning auxiliaries"):
             gpkg_files = [
@@ -693,7 +773,7 @@ if __name__ == "__main__":
 
                 final_gpkg_path = os.path.join(OUT_DIR, 'FLOWS_basins_map.gpkg')
                 merge_gdf.to_file(final_gpkg_path, driver="GPKG")
-                log_print(f"    -> Merged map saves as FLOWS_basins_map.gpkg")
+                log_print(f"    -> Merged map saved as FLOWS_basins_map.gpkg")
 
                 # cleaning up temp files
                 for f in gpkg_files:

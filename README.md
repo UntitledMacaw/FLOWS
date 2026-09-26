@@ -90,7 +90,7 @@ The FLOWS tool present in `terrain_cut_preprocessing.py` has currently been runn
 
 The FLOWS tool cut the dataset into 2820 core boxes, and so far it still hasn't finished all of them.
 
-Core boxes compiled so far: 840 / 2820 (last updated September 25, 2026)
+Core boxes compiled so far: 0 / 2820 (last updated September 26, 2026)
 
 When runtime is over, that data will be made open and available to everyone that wants to use it (usage rules determined by the project's license -> MIT License)
 
