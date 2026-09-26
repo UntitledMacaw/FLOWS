@@ -394,66 +394,11 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
     path_csv_file = Path(out_dir) / f"flows_table_{tile_id}.csv"
 
     # IMPORTANT -> checks if this code box was already compiled
-    path_depth_check = Path(out_dir) / f"depth_final_{tile_id}.tif"
-    path_basins_check = Path(out_dir) / f"basins_final_{tile_id}.tif"
 
-    if path_depth_check.is_file() and path_basins_check.is_file():
-        log_print(f"[NOTE] Raster data from {tile_id} already exists. Skipping basin finding")
-
-        # Checks if we already have a CSV generated
-        if path_csv_file.is_file():
-            log_print(f"[NOTE] {tile_id} seems to already be 100% processed. Moving on to the next one")
-            return None
-        # If not, calculate again
-
-        try:
-            path_cn_temp = os.path.join(out_dir, f"temp_{tile_id}_cn.tif")
-
-            with rasterio.open(path_basins_check) as src:
-                basins_data = src.read(1)
-
-                owned_ids = set(np.unique(basins_data))
-
-                owned_ids.discard(0)
-
-                if src.nodata is not None:
-                    owned_ids.discard(src.nodata)
-
-                b = src.bounds
-
-            if not os.path.exists(path_cn_temp):
-                gdal.Warp(
-                    destNameOrDestDS=path_cn_temp,
-                    srcDSOrSrcDSTab=path_cn_input,
-                    format='GTiff',
-                    outputBounds=(b.left, b.bottom, b.right, b.top),
-                    outputBoundsSRS='EPSG:5880',
-                    dstSRS='EPSG:5880',
-                    xRes=30, yRes=30,
-                    dstNodata=0,
-                    creationOptions=['COMPRESS=DEFLATE', 'TILED=YES']
-                )
-
-            df_tile = simulate_basin_volumes_worst_case(
-                path_basins=str(path_basins_check),
-                path_depth=str(path_depth_check),
-                path_cn=path_cn_temp,
-                owned_ids=owned_ids,
-                out_dir=out_dir,
-                tile_id=tile_id
-            )
-
-            if df_tile is not None and not df_tile.empty:
-                df_tile.to_csv(path_csv_file, index=False)
-                log_print(f"    -> Regenerated CSV table as: flows_table_{tile_id}.csv")
-
-            if os.path.exists(path_cn_temp):
-                os.remove(path_cn_temp)
-
-            return None
-
-        except Exception as e:
-            raise RuntimeError(f"Critical Failure on {tile_id}: {e}")
+    if path_csv_file.is_file():
+        log_print(f"[NOTE] {tile_id} seems to already be 100% processed. Moving on to the next one")
+        return None
+        
 
     df_tile = None
 
@@ -680,10 +625,8 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
 
         finally:
             # Limpeza incluindo o filename_cn!
-            temp_files = [filename_dem, filename_dem_clean, filename_d8, filename_sinks, filename_cn]
-            if not sucess:
-                temp_files.extend([filename_basins, filename_depth]) # Deletes if failed
-
+            temp_files = [filename_dem, filename_dem_clean, filename_d8, filename_sinks, filename_cn, filename_basins, filename_depth]
+        
             for f in temp_files:
                 path_f = os.path.join(out_dir, f)
                 if os.path.exists(path_f):
