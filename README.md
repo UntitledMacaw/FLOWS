@@ -43,10 +43,18 @@ For actually finding basins without exceeding RAM usage limits, FLOWS cuts the e
 > For checking whether a basin belongs in a respective core box, we compare its centroid (from the 2D top-down view) and check if it is contained within the initial core box boundaries (excluding buffer). Since the centroid is unique, we make sure that basins are counted once.
 
 ## Usage and requirements
-The FLOWS command tool can be found on the `terrain_cut_preprocessing.py` file (other alternatives exist for backup purposes).
-FLOWS will ask you to input:
-- Path for VRT (must be in EPSG:4326 coordinate system, so far no other systems are supported. Make sure to convert your dataset before proceeding)
-- Path for Curve Number raster (must also be in EPSG:4326 coordinate system) containing CN values for each pixel.
+There are two ways to FLOWS.
+
+**From the executable file (Linux only, hehe)**
+Just run the executable file and be happy (I mean,just mind for basic glibc and stuff)
+
+**From the python file**
+The FLOWS command tool can be found on the `terrain_cut_preprocessing.py` file (other alternatives exist for backup and packaging reasons). You could run `terrain_cut_packaging.py`, but it has changes intended for packaging it with pyinstaller that you probably won't need.
+> NOTE: If running from the python script, please mind dependencies like GDAL and stuff. Thay all can be found on requirements.txt, more on that below
+
+For both options, FLOWS will ask you to input:
+- Path for VRT (update! Now takes in any coordinate system)
+- Path for Curve Number raster (update! Now takes in any coordinate system) containing CN values for each pixel.
 - A folder for storing output
 
 It will return:
@@ -86,7 +94,7 @@ To prove FLOWS is able to be run on low-end hardware, here are the specs in whic
 > NOTE: 120 GB of storage is acceptable here since the dataset used by me (the author) weighted around 62GB. If your DEM and stuff weights more than that, consider revising storage for your own needs.
 
 ## Current compiling process (Brazil)
-The FLOWS tool present in `terrain_cut_preprocessing.py` has currently been running on my hardware and using ANADEM as dataset. ANADEM is a DEM provided by Brazil's National Water and Basic Sanitation Agency (ANA) in collaboration with the Federal University of Rio Grande do Sul (UFGRS). It is a refined version of Copernicus GLO-30, with reduced vegetation bias, made just for hydrological analysis like we're doing here.
+The FLOWS tool has currently been running on my hardware and using ANADEM as dataset. ANADEM is a DEM provided by Brazil's National Water and Basic Sanitation Agency (ANA) in collaboration with the Federal University of Rio Grande do Sul (UFGRS). It is a refined version of Copernicus GLO-30, with reduced vegetation bias, made just for hydrological analysis like we're doing here.
 
 The FLOWS tool cut the dataset into 2820 core boxes, and so far it still hasn't finished all of them.
 
