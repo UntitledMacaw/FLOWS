@@ -47,6 +47,7 @@ There are two ways to FLOWS.
 
 **From the executable file (Linux only, hehe)**
 Just run the executable file and be happy (I mean,just mind for basic glibc and stuff)
+It can be found on releases
 
 **From the python file**
 The FLOWS command tool can be found on the `terrain_cut_preprocessing.py` file (other alternatives exist for backup and packaging reasons). You could run `terrain_cut_packaging.py`, but it has changes intended for packaging it with pyinstaller that you probably won't need.
