@@ -25,6 +25,39 @@ gdal.UseExceptions()
 
 LOG_FILE = None
 
+def standardize_inputs_to_5880(path_dem, path_cn, c_dir):
+    """
+    Takes in any coordinate system of DEM and CN and converts it to EPSG:5880
+    :param path_dem: Path to DEM file
+    :param path_cn: Path to CN file
+    :param c_dir: Directory we are working on
+
+    """
+
+    dem_new = os.path.join(c_dir, "base_dem_5880.vrt")
+    cn_new = os.path.join(c_dir, "base_cn_5880.vrt")
+
+    gdal.Warp(
+            dem_new,
+            path_dem,
+            format='VRT',
+            dstSRS='EPSG:5880',
+            xRes=30, yRes=30,
+            targetAlignedPixels=True,
+        )
+    
+    gdal.Warp(
+            cn_new,
+            path_cn,
+            format='VRT',
+            dstSRS='EPSG:5880',
+            xRes=30, yRes=30,
+            targetAlignedPixels=True,
+            resampleAlg=gdal.GRA_NearestNeighbour
+        )
+
+    return dem_new, cn_new
+
 def log_noprint(*args, **kwargs):
     """
     Little brother of log_print function just below this one. Saves status to log without printing it to the user.
@@ -288,12 +321,7 @@ def plot_tile_diagnostics(
             ],
         )
 
-        buf_minx, buf_miny, buf_maxx, buf_maxy = buf_deg_bounds
-        df_buf = gpd.GeoDataFrame(
-            {'geometry': [box(buf_minx, buf_miny, buf_maxx, buf_maxy)]},
-            crs='EPSG:4326',
-        )
-        b_minx, b_miny, b_maxx, b_maxy = df_buf.to_crs('EPSG:5880').total_bounds
+        b_minx, b_miny, b_maxx, b_maxy = buf_deg_bounds
         c_minx, c_miny, c_maxx, c_maxy = core_bounds_5800
 
         # Draws Core Box limits
@@ -377,19 +405,19 @@ def plot_tile_diagnostics(
     except Exception as e:
         raise RuntimeError(f"Erro while ploting image diagnostics: {e}")
 
-def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
+def dynamic_cut(path_vrt, out_dir, core_bounds_5880, tile_id, path_cn_input):
     """
     This will cut the DEM according to topography, preserving basin boundaries (AKA no basins get cut)
     Criteria for cutting: All basins with a centroid that belongs to core tile A will be grouped together on the same TIF
     :param path_vrt: Path to our .vrt file
     :param out_dir: Path for our output
-    :param code_bounds_deg: Tuple (min_x, min_y, max_x, max_y)
+    :param code_bounds_5880: Tuple (min_x, min_y, max_x, max_y)
     :param tile_id: Unique tile ID
     
     """
 
     os.makedirs(out_dir, exist_ok=True)
-    minx, miny, maxx, maxy = core_bounds_deg
+    minx, miny, maxx, maxy = core_bounds_5880
 
     path_csv_file = Path(out_dir) / f"flows_table_{tile_id}.csv"
 
@@ -402,15 +430,10 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
 
     df_tile = None
 
-    # Projects Core Tile limist from 4326 (degress) to 5800 (meters)
-    df_core = gpd.GeoDataFrame({'geometry': [box(minx, miny, maxx, maxy)]}, crs="EPSG:4326")
-    df_core_5800 = df_core.to_crs("EPSG:5880")
-    core_bounds_5800 = df_core_5800.total_bounds # (minx, miny, maxx, maxy) em metros
-
     # Dynamic buffer initial setup
-    buffer_current = 0.1
-    buffer_steps = 0.1
-    buffer_limit = 4
+    buffer_current = 11200
+    buffer_steps = 11200
+    buffer_limit = 445000
     sucess = False
 
     wbt = WhiteboxTools()
@@ -446,7 +469,6 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
                 srcDSOrSrcDSTab=path_vrt,
                 format='GTiff',
                 outputBounds=(buf_minx, buf_miny, buf_maxx, buf_maxy),
-                outputBoundsSRS='EPSG:4326',
                 dstSRS='EPSG:5880',
                 xRes=30, yRes=30,
                 creationOptions=['COMPRESS=DEFLATE', 'TILED=YES']
@@ -459,10 +481,9 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
                 srcDSOrSrcDSTab=path_cn_original,
                 format='GTiff',
                 outputBounds=(buf_minx, buf_miny, buf_maxx, buf_maxy),
-                outputBoundsSRS='EPSG:4326',
                 dstSRS='EPSG:5880',
                 xRes=30, yRes=30,
-                dstNodata=0, # <-- makes sure to have 0's on noDATA zones
+                dstNodata=0, # <-- makes sure to have 0 on nodata zones
                 creationOptions=['COMPRESS=DEFLATE', 'TILED=YES']
             )
 
@@ -496,7 +517,7 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
                 centers = ndimage.center_of_mass(basins_data > 0, basins_data, unique_ids)
 
                 owned_by_core_ids = set()
-                c_minx, c_miny, c_maxx, c_maxy = core_bounds_5800
+                c_minx, c_miny, c_maxx, c_maxy = core_bounds_5880
 
                 # c) Filters which basins have their centroid INSIDE core tile
                 for basin_id, (row_center, col_center) in zip(unique_ids, centers):
@@ -566,7 +587,7 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_deg, tile_id, path_cn_input):
                     plot_tile_diagnostics(
                         filtered_basins,
                         transform,
-                        core_bounds_5800,
+                        core_bounds_5880,
                         buf_bounds,
                         centers,
                         unique_ids,
@@ -645,8 +666,8 @@ if __name__ == "__main__":
     PATH_CN_INPUT = str(input("Path for CN raster: ")).strip('\"')
     OUT_DIR = str(input("Output folder name (e.g., output_dir): ")).strip('\"')
     
-    TILE_WIDTH = float(input("Tile width in degrees (e.g., 2.5): "))
-    TILE_HEIGHT = float(input("Tile height in degrees (e.g., 0.5): "))
+    TILE_WIDTH = float(input("Tile width in meters (e.g., 280000): "))
+    TILE_HEIGHT = float(input("Tile height in meters (e.g., 55000): "))
 
     os.makedirs(OUT_DIR, exist_ok=True)
     LOG_FILE = os.path.join(OUT_DIR, "log.txt")
@@ -658,7 +679,9 @@ if __name__ == "__main__":
     start_time = time.time()
 
     with logged_status("Generating grid", spinner="dots"):
-        all_core_boxes = generate_core_boxes(PATH_VRT, TILE_WIDTH, TILE_HEIGHT)
+        PATH_VRT_5880, PATH_CN_5880 = standardize_inputs_to_5880(PATH_VRT, PATH_CN_INPUT, OUT_DIR)
+        all_core_boxes = generate_core_boxes(PATH_VRT_5880, TILE_WIDTH, TILE_HEIGHT)
+
 
     for box_info in all_core_boxes:
         tile_name = box_info["tile_id"]
@@ -667,11 +690,11 @@ if __name__ == "__main__":
         try:
             with logged_status(f"Processing {tile_name} | Bounds: {tile_bounds}"):
                 dynamic_cut(
-                    path_vrt=PATH_VRT,
+                    path_vrt=PATH_VRT_5880,
                     out_dir=OUT_DIR,
-                    core_bounds_deg=tile_bounds,
+                    core_bounds_5880=tile_bounds,
                     tile_id=tile_name,
-                    path_cn_input=PATH_CN_INPUT
+                    path_cn_input=PATH_CN_5880
                 )
 
         except Exception as e:
