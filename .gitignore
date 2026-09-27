@@ -11,6 +11,8 @@ active_venv.txt
 .env
 .env.*
 
+*.spec
+
 # Cache Python
 __pycache__/
 *.pyc
@@ -37,7 +39,12 @@ document.toc
 #arquivo tif teste
 mdt.tif
 
+#some other folders
 test_basins_dynamic/
+
+build/
+
+dist/
 
 *.tif
 *.tiff

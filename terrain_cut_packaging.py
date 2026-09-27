@@ -1,7 +1,12 @@
 import os
+import sys
 import geopandas as gpd
 from shapely.geometry import box, shape
 from osgeo import gdal
+
+if hasattr(sys, "_MEIPASS"):
+    os.environ["WBT_PATH"] = "bundled"  # value doesnt matter, we just need to have it existing so we shut down wbt download
+
 from whitebox import WhiteboxTools
 import rasterio
 import rasterio.features
@@ -21,9 +26,19 @@ from pathlib import Path
 
 console = Console()
 
-gdal.UseExceptions()
-
 LOG_FILE = None
+
+def resource_path(relative_path):
+    """
+    Returns correct binary path
+    """
+
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+
+    return os.path.join(os.path.abspath("."), relative_path)
+
+gdal.UseExceptions()
 
 def standardize_inputs_to_5880(path_dem, path_cn, c_dir):
     """
@@ -437,6 +452,8 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_5880, tile_id, path_cn_input):
     sucess = False
 
     wbt = WhiteboxTools()
+    if hasattr(sys, "_MEIPASS"):
+        wbt.exe_path = resource_path("wbt_standalone")
     wbt.set_working_dir(os.path.abspath(out_dir))
     wbt.verbose = False
 
@@ -663,10 +680,13 @@ if __name__ == "__main__":
     time.sleep(0.5)
     
     PATH_VRT = str(input("Path for VRT: ")).strip('\"')
+    time.sleep(0.1)
     PATH_CN_INPUT = str(input("Path for CN raster: ")).strip('\"')
+    time.sleep(0.1)
     OUT_DIR = str(input("Output folder name (e.g., output_dir): ")).strip('\"')
-    
+    time.sleep(0.1)
     TILE_WIDTH = float(input("Tile width in meters (e.g., 280000): "))
+    time.sleep(0.1)
     TILE_HEIGHT = float(input("Tile height in meters (e.g., 100000): "))
 
     os.makedirs(OUT_DIR, exist_ok=True)

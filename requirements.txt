@@ -1,4 +1,5 @@
 affine==2.4.0
+altgraph==0.17.5
 attrs==26.1.0
 certifi==2026.5.20
 click==8.4.1
@@ -17,6 +18,8 @@ packaging==26.2
 pandas==3.0.5
 pillow==12.2.0
 Pygments==2.21.0
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.7
 pyogrio==0.13.0
 pyparsing==3.3.2
 pyproj==3.7.2
@@ -24,6 +27,7 @@ python-dateutil==2.9.0.post0
 rasterio==1.5.0
 rich==15.0.0
 scipy==1.18.0
+setuptools==84.0.0
 shapely==2.1.2
 six==1.17.0
 whitebox==2.3.6
