@@ -669,6 +669,8 @@ if __name__ == "__main__":
     TILE_WIDTH = float(input("Tile width in meters (e.g., 280000): "))
     TILE_HEIGHT = float(input("Tile height in meters (e.g., 100000): "))
 
+    STARTING_POINT = int(input("Select from which basin ID to start (e.g., 100 | If not any, type 0): "))
+
     os.makedirs(OUT_DIR, exist_ok=True)
     LOG_FILE = os.path.join(OUT_DIR, "log.txt")
     
@@ -687,8 +689,14 @@ if __name__ == "__main__":
         tile_name = box_info["tile_id"]
         tile_bounds = box_info["bounds"]
 
+        tile_number = int(tile_name.split('_')[1])
+
         try:
             with logged_status(f"Processing {tile_name} | Bounds: {tile_bounds}"):
+                if tile_number < STARTING_POINT:
+                    log_print(f"[SKIP] Ignoring {tile_name} (ID lower than starting point)")
+                    continue
+                
                 dynamic_cut(
                     path_vrt=PATH_VRT_5880,
                     out_dir=OUT_DIR,
