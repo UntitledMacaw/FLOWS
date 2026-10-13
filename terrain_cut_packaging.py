@@ -678,15 +678,29 @@ def dynamic_cut(path_vrt, out_dir, core_bounds_5880, tile_id, path_cn_input):
 if __name__ == "__main__":
     log_print("Hello! Welcome to FLOWS command tool")
     time.sleep(0.5)
-    
-    PATH_VRT = str(input("Path for VRT: ")).strip('\"')
-    PATH_CN_INPUT = str(input("Path for CN raster: ")).strip('\"')
-    OUT_DIR = str(input("Output folder name (e.g., output_dir): ")).strip('\"')
-    
-    TILE_WIDTH = float(input("Tile width in meters (e.g., 280000): "))
-    TILE_HEIGHT = float(input("Tile height in meters (e.g., 100000): "))
 
-    STARTING_POINT = int(input("Select from which basin ID to start (e.g., 100 | If not any, type 0): "))
+    USE_DEMO = str(input("Run the built-in demo? [Y/n]")).strip().lower() in ("", "y", "yes")
+
+    if USE_DEMO:
+        log_noprint("[NOTE] Going to run the DEMO version. No DEM or rasters were provided by the user")
+        PATH_VRT = resource_path(os.path.join("demo_data", "mdt.tif"))
+        PATH_CN_INPUT = resource_path(os.path.join("demo_data", "cn_demo.tif"))
+        OUT_DIR = "flows_demo_output"
+        TILE_WIDTH = 50000
+        TILE_HEIGHT = 50000
+        log_print(f"    -> Going to use a width and height of 50000 meters. This should run fine on modest hardware,\nbut user atention is advised")
+        time.sleep(0.5)
+        STARTING_POINT = 0
+
+    else:
+        PATH_VRT = str(input("Path for VRT: ")).strip('\"')
+        PATH_CN_INPUT = str(input("Path for CN raster: ")).strip('\"')
+        OUT_DIR = str(input("Output folder name (e.g., output_dir): ")).strip('\"')
+        
+        TILE_WIDTH = float(input("Tile width in meters (e.g., 280000): "))
+        TILE_HEIGHT = float(input("Tile height in meters (e.g., 100000): "))
+
+        STARTING_POINT = int(input("Select from which basin ID to start (e.g., 100 | If not any, type 0): "))
 
     os.makedirs(OUT_DIR, exist_ok=True)
     LOG_FILE = os.path.join(OUT_DIR, "log.txt")

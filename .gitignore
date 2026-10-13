@@ -48,3 +48,7 @@ dist/
 
 *.tif
 *.tiff
+
+demo_data/
+
+flows_demo_output/
